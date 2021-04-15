@@ -14,6 +14,7 @@ export const getCommit = (owner, repo, ref) => {
 
 export const postCommitComment = (owner, repo, ref) => {
     // API ACCESS KEY NEEDED HERE
+    const accessKey = ''
     const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${accessKey}`
 
     const commentBodyText = `Hello, @${owner}`
