@@ -11,3 +11,21 @@ export const getCommit = (owner, repo, ref) => {
         return data
     })
 }
+
+export const postCommitComment = (owner, repo, ref) => {
+    // API ACCESS KEY NEEDED HERE
+    const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${accessKey}`
+
+    const commentBodyText = `Hello, @${owner}`
+
+    const commentBody = {
+        body: commentBodyText
+    }
+
+    console.log(apiPath)
+    return commitApi.post(apiPath, commentBody).then(({data}) => {
+        console.log(data)
+    }).catch((err) => {
+        console.log(err)
+    })
+}
