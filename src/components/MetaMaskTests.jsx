@@ -10,7 +10,7 @@ class MetaMaskTests extends Component {
             return window.ethereum.request({ method: 'eth_requestAccounts' })
                 .then(() => {
                 const transactionParameters = {
-                    to: '0x3d042aA656bCeeD1561bFF83c5B68AdC4C32cf61', // Required except during contract publications.
+                    to: '0x24a03C55E5419f1174134F2f11fd6C717E52A2b2', // Required except during contract publications.
                     from: window.ethereum.selectedAddress, // must match user's active address.
                     value: 'EEBE0B40E8000', // Only required to send ether to the recipient from the initiating external account.
                     };

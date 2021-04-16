@@ -1,14 +1,21 @@
 import './App.css';
-import HeaderIntro from './components/HeaderIntro'
-import CommitFetcher from './components/CommitFetcher'
-import MetaMaskTests from './components/MetaMaskTests'
+
+import { Router } from '@reach/router'
+
+import Home from './components/Home'
+// import HeaderIntro from './components/HeaderIntro'
+// import CommitFetcher from './components/CommitFetcher' 
+// import MetaMaskTests from './components/MetaMaskTests'
 
 function App() {
   return (
     <div className="App">
-      <HeaderIntro />
+      <Router className="content">
+        <Home path="/"/>
+      {/* <HeaderIntro />
       <CommitFetcher />
-      <MetaMaskTests />
+      <MetaMaskTests /> */}
+      </Router>
     </div>
   );
 }

@@ -1,5 +1,7 @@
 import axios from 'axios'
 
+const { REACT_APP_GITHUB_API_TOKEN } = process.env
+
 const commitApi = axios.create({
     baseURL: "https://api.github.com"
 })
@@ -13,9 +15,8 @@ export const getCommit = (owner, repo, ref) => {
 }
 
 export const postCommitComment = (owner, repo, ref) => {
-    // API ACCESS KEY NEEDED HERE
     const accessKey = ''
-    const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${accessKey}`
+    const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${REACT_APP_GITHUB_API_TOKEN}`
 
     const commentBodyText = `Hello, @${owner}`
 
