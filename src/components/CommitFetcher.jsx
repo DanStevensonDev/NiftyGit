@@ -63,6 +63,7 @@ class CommitFetcher extends Component {
 
     render() {
         const { commitDataRequested, commitReturnObject } = this.state
+        console.log(this.state)
 
         if (!commitDataRequested) {
             return (

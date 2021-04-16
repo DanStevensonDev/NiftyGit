@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import SocialButton from './SocialButton'
 
-import {fetchBids} from '../../models/fetchBids'
+import {getBids} from '../utils/backendApi'
 
 const {REACT_APP_GITHUB_OAUTH_TOKEN} = process.env
 
@@ -11,16 +11,16 @@ class MintYourCommits extends Component {
     state = {
         isGithubAuthenticated: false,
         userData: {},
+        bidsData: {},
     }
 
-    componentDidMount() {
-        fetchBids().then((bids) => {
+    handleGithubLogin = (user) => {
+        const committerUsername = user.profile.name
+
+        getBids(committerUsername).then((bids) => {
             console.log(bids)
         })
-    }
 
-    handleSocialLogin = (user) => {
-        console.log(user)
         this.setState(() => {
             return {
                 isGithubAuthenticated: true,
@@ -31,7 +31,7 @@ class MintYourCommits extends Component {
 
     }
 
-    handleSocialLoginFailure = (err) => {
+    handleGithubLoginFailure = (err) => {
         console.error(err)
     }
 
@@ -41,8 +41,8 @@ class MintYourCommits extends Component {
                 <SocialButton
                     provider='github'
                     appId={REACT_APP_GITHUB_OAUTH_TOKEN}
-                    onLoginSuccess={this.handleSocialLogin}
-                    onLoginFailure={this.handleSocialLoginFailure}
+                    onLoginSuccess={this.handleGithubLogin}
+                    onLoginFailure={this.handleGithubLoginFailure}
                 >
                     Login with Github
                 </SocialButton>
