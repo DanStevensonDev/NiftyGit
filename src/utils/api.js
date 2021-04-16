@@ -15,7 +15,6 @@ export const getCommit = (owner, repo, ref) => {
 }
 
 export const postCommitComment = (owner, repo, ref) => {
-    const accessKey = ''
     const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${REACT_APP_GITHUB_API_TOKEN}`
 
     const commentBodyText = `Hello, @${owner}`

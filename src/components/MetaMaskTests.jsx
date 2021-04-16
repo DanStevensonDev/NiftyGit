@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import detectEthereumProvider from '@metamask/detect-provider';
 
 class MetaMaskTests extends Component {
 
