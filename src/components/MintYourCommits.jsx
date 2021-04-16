@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 
 import SocialButton from './SocialButton'
 
+import {fetchBids} from '../../models/fetchBids'
+
 const {REACT_APP_GITHUB_OAUTH_TOKEN} = process.env
 
 
@@ -11,6 +13,11 @@ class MintYourCommits extends Component {
         userData: {},
     }
 
+    componentDidMount() {
+        fetchBids().then((bids) => {
+            console.log(bids)
+        })
+    }
 
     handleSocialLogin = (user) => {
         console.log(user)
@@ -20,6 +27,8 @@ class MintYourCommits extends Component {
                 userData: user
             }
         })
+
+
     }
 
     handleSocialLoginFailure = (err) => {
