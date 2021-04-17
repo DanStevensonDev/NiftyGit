@@ -1,10 +1,12 @@
 import React, { Component } from 'react'
 
-import SocialButton from './SocialButton'
+import {githubProvider} from "../config/authMethod"
+import socialMediaAuth from '../service/auth';
 
-import {getBids} from '../utils/backendApi'
+import { getBids } from '../utils/backendApi'
 
-const {REACT_APP_GITHUB_OAUTH_TOKEN} = process.env
+const { REACT_APP_GITHUB_OAUTH_TOKEN } = process.env
+console.log(REACT_APP_GITHUB_OAUTH_TOKEN)
 
 
 class MintYourCommits extends Component {
@@ -14,38 +16,17 @@ class MintYourCommits extends Component {
         bidsData: {},
     }
 
-    handleGithubLogin = (user) => {
-        const committerUsername = user.profile.name
-
-        getBids(committerUsername).then((bids) => {
-            console.log(bids)
-        })
-
-        this.setState(() => {
-            return {
-                isGithubAuthenticated: true,
-                userData: user
-            }
-        })
-
-
-    }
-
-    handleGithubLoginFailure = (err) => {
-        console.error(err)
+    handleOnClick = (provider) => {
+        const res = socialMediaAuth(provider)
+        console.log(res)
     }
 
     render() {
         if (!this.state.isGithubAuthenticated) {
             return (
-                <SocialButton
-                    provider='github'
-                    appId={REACT_APP_GITHUB_OAUTH_TOKEN}
-                    onLoginSuccess={this.handleGithubLogin}
-                    onLoginFailure={this.handleGithubLoginFailure}
-                >
-                    Login with Github
-                </SocialButton>
+                <div>
+                    <button onClick={() => this.handleOnClick(githubProvider)}>Login to Github</button>
+                </div>
                 
             )
         } else {
