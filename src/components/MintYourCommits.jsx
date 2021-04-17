@@ -1,38 +1,72 @@
 import React, { Component } from 'react'
 
-import {githubProvider} from "../config/authMethod"
 import socialMediaAuth from '../service/auth';
 
-import { getBids } from '../utils/backendApi'
-
-const { REACT_APP_GITHUB_OAUTH_TOKEN } = process.env
-console.log(REACT_APP_GITHUB_OAUTH_TOKEN)
+import { getBidsByCommitter } from '../utils/backendApi'
 
 
 class MintYourCommits extends Component {
     state = {
         isGithubAuthenticated: false,
-        userData: {},
-        bidsData: {},
+        committerData: {},
+        bidsData: [],
     }
 
-    handleOnClick = (provider) => {
-        const res = socialMediaAuth(provider)
-        console.log(res)
+    handleOnClick = () => {
+        socialMediaAuth()
+            .then((userData) => {
+            this.setState(() => {
+                return {
+                    isGithubAuthenticated: true,
+                    committerData: userData
+                }
+            })
+            }).then(() => {
+                const committerUsername = this.state.committerData.additionalUserInfo.username
+                return getBidsByCommitter(committerUsername)
+            }).then(({data}) => {
+                this.setState(() => {
+                    return {
+                        bidsData: data
+                    }
+                })
+            })
     }
 
     render() {
         if (!this.state.isGithubAuthenticated) {
             return (
                 <div>
-                    <button onClick={() => this.handleOnClick(githubProvider)}>Login to Github</button>
+                    <button onClick={() => this.handleOnClick()}>Login to Github</button>
                 </div>
                 
             )
         } else {
-            const {name} = this.state.userData.profile
+            const committerUsername = this.state.committerData.additionalUserInfo.username
+            const committerEmailAddress = this.state.committerData.user.email
+            const { bidsData } = this.state
             return (
-                <p>Hello {name}</p>
+                <div>
+                    <p>Logged in</p>
+                    <p>Hi {committerUsername}</p>
+                    <p>Email address: {committerEmailAddress}</p>
+                    <table>
+                          <tr>
+                            <th>Commit URL</th>
+                            <th>Bid amount</th>
+                            <th>Mint commit</th>
+                        </tr>
+                        {bidsData.map((bid) => {
+                            return (
+                                <tr key={bid.bid_id}>
+                                    <td><a href={bid.commit_url} target="_blank" rel="noreferrer">{bid.commit_message}</a></td>
+                                    <td>{bid.support_amount_in_ether}eth</td>
+                                    <td><button>Accept bid and mint</button></td>
+                                </tr>
+                            )
+                        })}
+                    </table>
+                </div>
             )
         }
     }

@@ -1,8 +1,9 @@
 import firebase from '../config/firebase-config'
 
-const socialMediaAuth = (provider) => {
-    return firebase.auth().signInWithPopup(provider).then((res) => {
-        return res
+const socialMediaAuth = () => {
+    return firebase.auth().signInWithPopup(new firebase.auth.GithubAuthProvider())
+        .then((res) => {
+            return res
     }).catch((err) => {
         return err
     })
