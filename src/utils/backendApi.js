@@ -20,3 +20,9 @@ export const getOffersByCommitter = (committerUsername) => {
     })
 }
 
+export const postOffer = (bidData) => {
+    return backendApi.post(`api/bids`)
+        .then((data) => {
+            return data
+        })
+}
