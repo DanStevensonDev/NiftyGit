@@ -1,14 +1,14 @@
 import React, { Component } from 'react';
 
 import HeaderIntro from './HeaderIntro'
-import CommitFetcher from './CommitFetcher' 
+import MakeOffer from './MakeOffer' 
 
 class Home extends Component {
     render() {
         return (
             <div>
                 <HeaderIntro />
-                <CommitFetcher />
+                <MakeOffer />
             </div>
         );
     }
