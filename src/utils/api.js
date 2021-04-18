@@ -10,7 +10,10 @@ export const getCommit = (owner, repo, ref) => {
     const apiPath = `/repos/${owner}/${repo}/commits?sha=${ref}`
 
     return commitApi.get(apiPath).then(({data}) => {
-        return data
+        // API returns data about 30 commits
+        // return data[0] to return data
+        // only for relevant commit
+        return data[0]
     })
 }
 

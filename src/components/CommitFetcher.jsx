@@ -1,19 +1,22 @@
 import React, { Component } from 'react';
 
-import { getCommit, postCommitComment } from '../utils/api'
+import { getBidByRef } from '../utils/backendApi'
+import { getCommit } from '../utils/api'
+
+import CommitBidStatus from './CommitBidStatus'
+
 
 
 class CommitFetcher extends Component {
-
     state = {
         commitUrl: "",
         commitDataRequested: false,
-        commitReturnObject: [],
-        commitCommentPosted: false,
+        commitDataReturned: {},
+        commitBidExists: false,
+        commitBidsData: [],
     }
 
     handleGetData = (event) => {
-        console.log(event)
         event.preventDefault()
         const { commitUrl } = this.state
 
@@ -23,37 +26,40 @@ class CommitFetcher extends Component {
         const repo = commitUrlDirectories[2]
         const ref = commitUrlDirectories[0]
 
-        return getCommit(owner, repo, ref).then((commitData) => {
+        return getCommit(owner, repo, ref)
+            .then((commitData) => {
             this.setState(() => {
                 return {
                     commitDataRequested: true,
-                    commitReturnObject: commitData
+                    commitDataReturned: commitData
                 }
             })
-            // console.log(this.state)
-        })
-    }
-
-    handlePostComment = (event) => {
-        console.log(event)
-        event.preventDefault()
-        const { commitUrl } = this.state
-
-        const commitUrlDirectories = commitUrl.split("/").reverse()
-
-        const owner = commitUrlDirectories[3]
-        const repo = commitUrlDirectories[2]
-        const ref = commitUrlDirectories[0]
-
-        return postCommitComment(owner, repo, ref)
+            }).catch((err) => {
+                return err
+            })
             .then(() => {
-            this.setState(() => {
-                return {
-                    commitCommentPosted: true,
+                if (this.state.commitDataReturned.sha) {
+                    return getBidByRef(ref).then((bidData) => {
+                        if (bidData.length === 0) {
+                            this.setState(() => {
+                                return {
+                                    commitBidExists: false,
+                                    commitBidsData: []
+                                }
+                            })
+                        } else {
+                            this.setState(() => {
+                                return {
+                                    commitBidExists: true,
+                                    commitBidsData: bidData
+                                }
+                            })
+                        }
+                    })
                 }
             })
-            console.log(this.state)
-        })
+        
+
     }
 
     handleChange = (event) => {
@@ -62,8 +68,7 @@ class CommitFetcher extends Component {
     }
 
     render() {
-        const { commitDataRequested, commitReturnObject } = this.state
-        console.log(this.state)
+        const { commitDataRequested } = this.state
 
         if (!commitDataRequested) {
             return (
@@ -73,26 +78,22 @@ class CommitFetcher extends Component {
                         <input onChange={this.handleChange} type="text" name="github-commit-url" id="github-commit-url"/>
                         <button type="submit" id="get-data">Get commit data</button>
                     </form><br/>
-                    <form onSubmit={this.handlePostComment} action="">
-                        <label htmlFor="github-commit-url">Github commit URL</label>
-                        <input onChange={this.handleChange} type="text" name="github-commit-url" id="github-commit-url"/>
-                        <button type="submit" id="post-comment">Notify committer</button>
-                    </form>
                 </div>
             )
+
         } else {
             return (
                 <div>
-                    <form onSubmit={this.handleSubmit} action="">
+                    <form onSubmit={this.handleGetData} action="">
                         <label htmlFor="github-commit-url">Github commit URL</label>
                         <input onChange={this.handleChange} type="text" name="github-commit-url" id="github-commit-url"/>
-                        <button type="submit">Get commit data</button>
-                    </form>
-                    <p>Committer email address: {commitReturnObject[0].commit.author.email}</p>
+                        <button type="submit" id="get-data">Get commit data</button>
+                    </form><br/>
+                    
+                    <CommitBidStatus commitData={this.state.commitDataReturned} bidsData={this.state.commitBidsData}/>
                 </div>
             )
         }
-
     }
 }
 
