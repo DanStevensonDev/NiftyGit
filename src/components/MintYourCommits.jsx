@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import socialMediaAuth from '../service/auth';
 
-import { getBidsByCommitter } from '../utils/backendApi'
+import { getOffersByCommitter } from '../utils/backendApi'
 
 
 class MintYourCommits extends Component {
@@ -23,7 +23,7 @@ class MintYourCommits extends Component {
             })
             }).then(() => {
                 const committerUsername = this.state.committerData.additionalUserInfo.username
-                return getBidsByCommitter(committerUsername)
+                return getOffersByCommitter(committerUsername)
             }).then(({data}) => {
                 this.setState(() => {
                     return {
