@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 
 import HeaderIntro from './HeaderIntro'
 import CommitFetcher from './CommitFetcher' 
-import MetaMaskTests from './MetaMaskTests'
 
 class Home extends Component {
     render() {
@@ -10,7 +9,6 @@ class Home extends Component {
             <div>
                 <HeaderIntro />
                 <CommitFetcher />
-                <MetaMaskTests />
             </div>
         );
     }
