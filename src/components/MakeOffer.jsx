@@ -15,6 +15,7 @@ class CommitFetcher extends Component {
         supporterEmailAddress: "",
         supporterTransactionAddress: "",
         transactionHash: "",
+        transactionTime: 0,
         commitCommentPosted: false,
     }
 
@@ -55,15 +56,22 @@ class CommitFetcher extends Component {
                         return window.ethereum.request({
                             method: 'eth_sendTransaction',
                             params: [transactionParameters],
+                        }).catch((err) => {
+                            console.log(err)
+                            return err 
                         }).then((data) => {
-                            this.setState(() => {
-                                return {
-                                    isMetaMaskInstalled: true,
-                                    transactionConfirmed: true,
-                                    supporterTransactionAddress: window.ethereum.selectedAddress,
-                                    transactionHash: data,
-                                }
-                            })
+                            if (!data.code) {
+                                this.setState(() => {
+                                    const transactionTimeUnix = Date.now()
+                                    return {
+                                        isMetaMaskInstalled: true,
+                                        transactionConfirmed: true,
+                                        supporterTransactionAddress: window.ethereum.selectedAddress,
+                                        transactionHash: data,
+                                        transactionTime: transactionTimeUnix
+                                    }
+                                })
+                            }
                         }).catch((err) => {
                             return err
                         })
@@ -76,16 +84,18 @@ class CommitFetcher extends Component {
                     })
                 }
             }).then(() => {
-                const committerUsername = this.state.commitDataReturned.author.login
-                return postCommitComment(owner, repo, ref, committerUsername)
-                    .then(() => {
-                    this.setState(() => {
-                        return {
-                            commitCommentPosted: true,
-                        }
+                if (this.state.transactionConfirmed) {
+                    const committerUsername = this.state.commitDataReturned.author.login
+                    return postCommitComment(owner, repo, ref, committerUsername)
+                        .then(() => {
+                        this.setState(() => {
+                            return {
+                                commitCommentPosted: true,
+                            }
+                        })
+                        console.log(this.state)
                     })
-                    console.log(this.state)
-                })
+                }
             })
 
     }
@@ -107,14 +117,14 @@ class CommitFetcher extends Component {
             return (
                 <div>
                     <form onSubmit={this.handleMakeOffer} action="">
-                        <label htmlFor="commitUrl">Github commit URL</label>
-                        <input onChange={this.handleChange} type="text" name="commitUrl" id="commitUrl" required/><br />
+                        <label htmlFor="commitUrl">Github commit URL</label><br/>
+                        <input onChange={this.handleChange} type="text" name="commitUrl" id="commitUrl" required/><br/><br/>
                         
-                        <label htmlFor="offerAmount">Your offer in Ether (minimum offer = 0.0042 eth)</label>
-                        <input onChange={this.handleChange} type="text" name="offerAmount" id="offerAmount" required/><br />
+                        <label htmlFor="offerAmount">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
+                        <input onChange={this.handleChange} type="text" name="offerAmount" id="offerAmount" required/><br/><br/>
                         
-                        <label htmlFor="supporterEmailAddress">Your email address (this is where we will notify you if your offer is accepted)</label>
-                        <input onChange={this.handleChange} type="text" name="supporterEmailAddress" id="supporterEmailAddress" required/><br />
+                        <label htmlFor="supporterEmailAddress">Your email address (this is where we will notify you if your offer is accepted)</label><br/>
+                        <input onChange={this.handleChange} type="text" name="supporterEmailAddress" id="supporterEmailAddress" required/><br/><br/>
                         
                         <button type="submit" id="get-data">Make offer</button>
                     </form><br />
