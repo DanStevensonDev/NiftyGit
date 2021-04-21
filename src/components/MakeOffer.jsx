@@ -29,22 +29,26 @@ class CommitFetcher extends Component {
         const repo = commitUrlDirectories[2]
         const ref = commitUrlDirectories[0]
 
+        // get commit data from GitHub
         return getCommit(owner, repo, ref)
             .then((commitData) => {
-            this.setState(() => {
-                return {
-                    commitDataReturned: commitData,
-                }
-            })
+                this.setState(() => {
+                    return {
+                        commitDataReturned: commitData,
+                    }
+                })
             }).catch((err) => {
-                return err
+                return err 
             }).then(() => {
+                // calculate offer in Hex needed for web3 request function
                 const offerInEth = this.state.offerAmount
                 const offerInGwei = offerInEth * 1000000000
                 const offerInWei = offerInGwei * 1000000000
                 const offerInWeiHex = offerInWei.toString(16)
 
+                // check MetaMask is installed
                 if (typeof window.ethereum !== 'undefined') {
+                    // create request to escrow account
                     return window.ethereum.request({ method: 'eth_requestAccounts' })
                         .then(() => {
                         const transactionParameters = {
@@ -57,8 +61,11 @@ class CommitFetcher extends Component {
                             method: 'eth_sendTransaction',
                             params: [transactionParameters],
                         }).catch((err) => {
-                            console.log(err)
-                            return err 
+                            return err
+                        
+                        // check that no error code returned
+                        // therefore transaction confirmed
+                        // set state to transaction data
                         }).then((data) => {
                             if (!data.code) {
                                 this.setState(() => {
@@ -75,8 +82,9 @@ class CommitFetcher extends Component {
                         }).catch((err) => {
                             return err
                         })
-                    })
+                        })
                 } else {
+                    // set state if MetaMask not installed
                     return this.setState(() => {
                         return {
                             isMetaMaskInstalled: false,
@@ -84,8 +92,9 @@ class CommitFetcher extends Component {
                     })
                 }
             }).then(() => {
+                // if transaction confirmed, post comment to GitHub @committerUsername
                 if (this.state.transactionConfirmed) {
-                    const committerUsername = this.state.commitDataReturned.author.login
+                    const committerUsername = this.state.commitDataReturned.committer.login
                     return postCommitComment(owner, repo, ref, committerUsername)
                         .then(() => {
                         this.setState(() => {
@@ -93,11 +102,9 @@ class CommitFetcher extends Component {
                                 commitCommentPosted: true,
                             }
                         })
-                        console.log(this.state)
                     })
                 }
             })
-
     }
 
     handleChange = (event) => {
@@ -111,7 +118,6 @@ class CommitFetcher extends Component {
     }
 
     render() {
-        console.log(this.state)
         const {transactionConfirmed} = this.state
         if (!transactionConfirmed) {
             return (
