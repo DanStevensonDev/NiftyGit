@@ -32,6 +32,7 @@ class CommitFetcher extends Component {
         // get commit data from GitHub
         return getCommit(owner, repo, ref)
             .then((commitData) => {
+                console.log(commitData)
                 this.setState({ commitData })
             }).catch((err) => {
                 return err 

@@ -45,6 +45,7 @@ class MintYourCommits extends Component {
             const committerUsername = this.state.committerData.additionalUserInfo.username
             const committerEmailAddress = this.state.committerData.user.email
             const { offersData } = this.state
+
             return (
                 <div>
                     <p>Logged in</p>
@@ -57,10 +58,12 @@ class MintYourCommits extends Component {
                             <th>Mint commit</th>
                         </tr>
                         {offersData.map((offer) => {
+                            const { offerId, offerAmountInEth, commitData } = offer
+                            console.log(offerId, offerAmountInEth)
                             return (
-                                <tr key={offer.offer_id}>
-                                    <td><a href={offer.commit_url} target="_blank" rel="noreferrer">{offer.commit_message}</a></td>
-                                    <td>{offer.support_amount_in_ether}eth</td>
+                                <tr key={offerId}>
+                                    <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
+                                    <td>{offerAmountInEth}eth</td>
                                     <td><button>Accept offer and mint</button></td>
                                 </tr>
                             )
