@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 import HeaderIntro from './HeaderIntro'
+import MetaMaskAccountInfo from './MetaMaskAccountInfo'
 import MakeOffer from './MakeOffer' 
 
 class Home extends Component {
@@ -8,6 +9,7 @@ class Home extends Component {
         return (
             <div>
                 <HeaderIntro />
+                <MetaMaskAccountInfo />
                 <MakeOffer />
             </div>
         );
