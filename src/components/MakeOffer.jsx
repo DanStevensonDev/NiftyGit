@@ -1,19 +1,19 @@
 import React, { Component } from 'react';
 
 import { getCommit, postCommitComment } from '../utils/api'
+import { postOfferTransaction } from '../utils/backendApi'
 
 const {REACT_APP_ETHER_ESCROW_ADDRESS} = process.env
 
 class CommitFetcher extends Component {
     state = {
         commitUrl: "",
-        offerAmount: 0,
-        commitDataReturned: null,
-        commitBidsData: [],
+        offerAmountInEth: 0,
+        commitData: null,
         isMetaMaskInstalled: null,
         transactionConfirmed: false,
         supporterEmailAddress: "",
-        supporterTransactionAddress: "",
+        supporterAccountAddress: "",
         transactionHash: "",
         transactionTime: 0,
         commitCommentPosted: false,
@@ -32,16 +32,12 @@ class CommitFetcher extends Component {
         // get commit data from GitHub
         return getCommit(owner, repo, ref)
             .then((commitData) => {
-                this.setState(() => {
-                    return {
-                        commitDataReturned: commitData,
-                    }
-                })
+                this.setState({ commitData })
             }).catch((err) => {
                 return err 
             }).then(() => {
                 // calculate offer in Hex needed for web3 request function
-                const offerInEth = this.state.offerAmount
+                const offerInEth = this.state.offerAmountInEth
                 const offerInGwei = offerInEth * 1000000000
                 const offerInWei = offerInGwei * 1000000000
                 const offerInWeiHex = offerInWei.toString(16)
@@ -73,7 +69,7 @@ class CommitFetcher extends Component {
                                     return {
                                         isMetaMaskInstalled: true,
                                         transactionConfirmed: true,
-                                        supporterTransactionAddress: window.ethereum.selectedAddress,
+                                        supporterAccountAddress: window.ethereum.selectedAddress,
                                         transactionHash: data,
                                         transactionTime: transactionTimeUnix
                                     }
@@ -93,8 +89,8 @@ class CommitFetcher extends Component {
                 }
             }).then(() => {
                 // if transaction confirmed, post comment to GitHub @committerUsername
+                const committerUsername = this.state.commitData.committer.login
                 if (this.state.transactionConfirmed) {
-                    const committerUsername = this.state.commitDataReturned.committer.login
                     return postCommitComment(owner, repo, ref, committerUsername)
                         .then(() => {
                         this.setState(() => {
@@ -126,8 +122,8 @@ class CommitFetcher extends Component {
                         <label htmlFor="commitUrl">Github commit URL</label><br/>
                         <input onChange={this.handleChange} type="text" name="commitUrl" id="commitUrl" required/><br/><br/>
                         
-                        <label htmlFor="offerAmount">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
-                        <input onChange={this.handleChange} type="text" name="offerAmount" id="offerAmount" required/><br/><br/>
+                        <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
+                        <input onChange={this.handleChange} type="text" name="offerAmountInEth" id="offerAmountInEth" required/><br/><br/>
                         
                         <label htmlFor="supporterEmailAddress">Your email address (this is where we will notify you if your offer is accepted)</label><br/>
                         <input onChange={this.handleChange} type="text" name="supporterEmailAddress" id="supporterEmailAddress" required/><br/><br/>
