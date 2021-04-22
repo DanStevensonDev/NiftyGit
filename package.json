@@ -19,7 +19,8 @@
     "react-login-github": "^1.0.7",
     "react-scripts": "4.0.3",
     "react-social-login": "^3.4.13",
-    "web-vitals": "^1.1.1"
+    "web-vitals": "^1.1.1",
+    "web3": "^1.3.5"
   },
   "scripts": {
     "start": "react-scripts start",
