@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
 import { getCommit, postCommitComment } from '../utils/api'
-import { postOfferTransaction } from '../utils/backendApi'
+import { postOffer } from '../utils/backendApi'
 
 const {REACT_APP_ETHER_ESCROW_ADDRESS} = process.env
 
@@ -89,18 +89,47 @@ class CommitFetcher extends Component {
                     })
                 }
             }).then(() => {
-                // if transaction confirmed, post comment to GitHub @committerUsername
-                const committerUsername = this.state.commitData.committer.login
-                if (this.state.transactionConfirmed) {
-                    return postCommitComment(owner, repo, ref, committerUsername)
-                        .then(() => {
-                        this.setState(() => {
-                            return {
-                                commitCommentPosted: true,
-                            }
-                        })
-                    })
+                // postOffer
+                const { commitData,
+                    offerAmountInEth,
+                    supporterAccountAddress,
+                    supporterEmailAddress,
+                    transactionHash,
+                    transactionTime
+                } = this.state
+
+                const committerUsername = commitData.committer.login
+                
+                const transactionData = {
+                    committerUsername,
+                    commitData,
+                    offerAmountInEth,
+                    supporterAccountAddress,
+                    supporterEmailAddress,
+                    transactionHash,
+                    transactionTime
                 }
+                
+                console.log(transactionData)
+
+                return postOffer(transactionData).then((data) => {
+                    console.log(data)
+                }).catch((err) => {
+                    return err
+                }).then(() => {
+                    // if transaction confirmed, post comment to GitHub @committerUsername
+                    if (this.state.transactionConfirmed) {
+                        return postCommitComment(owner, repo, ref, committerUsername)
+                            .then(() => {
+                            this.setState(() => {
+                                return {
+                                    commitCommentPosted: true,
+                                }
+                            })
+                        })
+                    }
+                })
+                
             })
     }
 

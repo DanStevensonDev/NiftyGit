@@ -14,9 +14,9 @@ export const getOffersByCommitter = (committerUsername) => {
     })
 }
 
-export const postOfferTransactionData = (offerData) => {
+export const postOffer = (offerData) => {
     console.log(offerData)
-    return backendApi.post(`api/offers`)
+    return backendApi.post(`api/offers`, offerData)
         .then((data) => {
             return data
         })
