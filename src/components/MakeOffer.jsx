@@ -7,6 +7,7 @@ const {REACT_APP_ETHER_ESCROW_ADDRESS} = process.env
 
 class CommitFetcher extends Component {
     state = {
+        isFormDisabled: false,
         commitUrl: "",
         offerAmountInEth: 0,
         commitData: null,
@@ -19,7 +20,36 @@ class CommitFetcher extends Component {
         commitCommentPosted: false,
     }
 
+    componentDidMount() {
+        // const { chainId } = this.props
+
+        // if (chainId !== 1) {
+        //     // handle not connected to Mainnet
+        // }
+    }
+
     handleMakeOffer = (event) => {
+        
+        // initial form validation
+        // check URL
+        if (!this.state.commitUrl.startsWith("https://github.com/")) {
+            alert("Enter the full commit URL, starting with \"https://github.com\"")
+        
+        // check offer is a number
+        } else if (!Number(this.state.offerAmountInEth)) {
+            alert("Your offer must be a number")
+
+        // check offer is larger than minimum
+        } else if (this.state.offerAmountInEth < 0.005) {
+            alert("Your offer must be higher than 0.005 Eth")
+
+        // check if an email address is entered, it meets basic requirements
+        } else if (this.state.supporterEmailAddress && 
+            (!this.state.supporterEmailAddress.includes("@") ||
+            !this.state.supporterEmailAddress.includes("."))) {
+                alert("Enter a valid email address or leave blank")
+        } else {
+        
         event.preventDefault()
         const { commitUrl } = this.state
 
@@ -28,6 +58,7 @@ class CommitFetcher extends Component {
         const owner = commitUrlDirectories[3]
         const repo = commitUrlDirectories[2]
         const ref = commitUrlDirectories[0]
+
 
         // get commit data from GitHub
         return getCommit(owner, repo, ref)
@@ -89,7 +120,10 @@ class CommitFetcher extends Component {
                     })
                 }
             }).then(() => {
-                // postOffer
+                if (!this.state.transactionConfirmed) {
+                    console.log("transaction abandoned")
+                } else {
+                    // postOffer
                 const { commitData,
                     offerAmountInEth,
                     supporterAccountAddress,
@@ -128,9 +162,12 @@ class CommitFetcher extends Component {
                             })
                         })
                     }
+                }).catch((err) => {
+                    return err
                 })
-                
-            })
+            }
+        })
+        }   
     }
 
     handleChange = (event) => {
@@ -150,13 +187,13 @@ class CommitFetcher extends Component {
                 <div>
                     <form onSubmit={this.handleMakeOffer} action="">
                         <label htmlFor="commitUrl">Github commit URL</label><br/>
-                        <input onChange={this.handleChange} type="text" name="commitUrl" id="commitUrl" required/><br/><br/>
+                        <input onChange={this.handleChange} type="text" name="commitUrl" id="commitUrl" required /><br/><br/>
                         
                         <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
                         <input onChange={this.handleChange} type="text" name="offerAmountInEth" id="offerAmountInEth" required/><br/><br/>
                         
-                        <label htmlFor="supporterEmailAddress">Your email address (this is where we will notify you if your offer is accepted)</label><br/>
-                        <input onChange={this.handleChange} type="text" name="supporterEmailAddress" id="supporterEmailAddress" required/><br/><br/>
+                        <label htmlFor="supporterEmailAddress">Your email address (Optional) This is where we will notify you if your offer is accepted; otherwise your wallet will automatically receive the NFT or returned offer.</label><br/>
+                        <input onChange={this.handleChange} type="text" name="supporterEmailAddress" id="supporterEmailAddress"/><br/><br/>
                         
                         <button type="submit" id="get-data">Make offer</button>
                     </form><br />
