@@ -10,7 +10,6 @@ class Home extends Component {
             <div>
                 <HeaderIntro />
                 <MetaMaskAccountInfo />
-                <MakeOffer />
             </div>
         );
     }
