@@ -2,13 +2,19 @@ import React, { Component } from 'react';
 
 import HeaderIntro from './HeaderIntro'
 import MetaMaskAccountInfo from './MetaMaskAccountInfo'
+import HowItWorksInfo from './HowItWorksInfo'
 
 class Home extends Component {
     render() {
         return (
             <div>
-                <HeaderIntro />
-                <MetaMaskAccountInfo />
+                <header>
+                    <HeaderIntro />
+                </header>
+                <main>
+                    <MetaMaskAccountInfo />
+                    <HowItWorksInfo />
+                </main>
             </div>
         );
     }
