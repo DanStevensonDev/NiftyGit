@@ -58,16 +58,15 @@ class MetaMaskAccountInfo extends Component {
         if (userBlockchainDataLoaded && chainId === 1) {
             return (
                 <div>
-                    <p>{concatAccount}</p>
-                    <p>Connected on the Etherem Mainnet</p>
+                    <p>You are connected to account {concatAccount} on the Ethereum Mainnet.</p>
                     <MakeOffer chainId={chainId}/>
                 </div>
             );
         } else if (userBlockchainDataLoaded) {
             return (
                 <div>
-                    <p>{concatAccount}</p>
-                    <p>Connected on Chain ID {chainId}. Connect on the Ethereum Mainnet to use NiftyGit.</p>
+                    <p>You are connected to account {concatAccount} on Chain ID {chainId}.</p>
+                    <p>Connect on the Ethereum Mainnet to use NiftyGit.</p>
                     <MakeOffer chainId={chainId}/>
                 </div>
             )
