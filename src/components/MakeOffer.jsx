@@ -3,6 +3,8 @@ import React, { Component } from 'react';
 import { getCommit, postCommitComment } from '../utils/api'
 import { postOffer } from '../utils/backendApi'
 
+import { TextField, Button } from "@material-ui/core"
+
 const {REACT_APP_ETHER_ESCROW_ADDRESS} = process.env
 
 class CommitFetcher extends Component {
@@ -187,15 +189,15 @@ class CommitFetcher extends Component {
                 <div>
                     <form onSubmit={this.handleMakeOffer} action="">
                         <label htmlFor="commitUrl">Github commit URL</label><br/>
-                        <input onChange={this.handleChange} type="text" name="commitUrl" id="commitUrl" required /><br/><br/>
+                        <TextField onChange={this.handleChange} variant="filled" style={{ width: "95%"}} type="text" name="commitUrl" id="commitUrl" required /><br/><br/>
                         
                         <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
-                        <input onChange={this.handleChange} type="text" name="offerAmountInEth" id="offerAmountInEth" required/><br/><br/>
+                        <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" required/><br/><br/>
                         
-                        <label htmlFor="supporterEmailAddress">Your email address (Optional) This is where we will notify you if your offer is accepted; otherwise your wallet will automatically receive the NFT or returned offer.</label><br/>
-                        <input onChange={this.handleChange} type="text" name="supporterEmailAddress" id="supporterEmailAddress"/><br/><br/>
+                        {/* <label htmlFor="supporterEmailAddress">Your email address (Optional) This is where we will notify you if your offer is accepted; otherwise your wallet will automatically receive the NFT or returned offer.</label><br/>
+                        <TextField onChange={this.handleChange} variant="filled" style={{width: "60%"}} type="text" name="supporterEmailAddress" id="supporterEmailAddress"/><br/><br/> */}
                         
-                        <button type="submit" id="get-data">Make offer</button>
+                        <Button variant="contained" type="submit" id="get-data">Open crypto wallet to make offer</Button>
                     </form><br />
                 </div>
             )
