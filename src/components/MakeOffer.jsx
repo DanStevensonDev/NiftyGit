@@ -9,7 +9,6 @@ const {REACT_APP_ETHER_ESCROW_ADDRESS} = process.env
 
 class CommitFetcher extends Component {
     state = {
-        isFormDisabled: false,
         commitUrl: "",
         offerAmountInEth: 0,
         commitData: null,
@@ -22,19 +21,14 @@ class CommitFetcher extends Component {
         commitCommentPosted: false,
     }
 
-    componentDidMount() {
-        // const { chainId } = this.props
-
-        // if (chainId !== 1) {
-        //     // handle not connected to Mainnet
-        // }
-    }
-
     handleMakeOffer = (event) => {
-        
         // initial form validation
+        // check connected to Ethereum Mainnet
+        if (this.props.chainId !== 1) {
+            alert("You need to connect to the Ethereum Mainnet to make an offer on a commit")
+
         // check URL
-        if (!this.state.commitUrl.startsWith("https://github.com/")) {
+        } else if (!this.state.commitUrl.startsWith("https://github.com/")) {
             alert("Enter the full commit URL, starting with \"https://github.com\"")
         
         // check offer is a number
@@ -82,8 +76,8 @@ class CommitFetcher extends Component {
                     return window.ethereum.request({ method: 'eth_requestAccounts' })
                         .then(() => {
                         const transactionParameters = {
-                            to: REACT_APP_ETHER_ESCROW_ADDRESS,
                             from: window.ethereum.selectedAddress,
+                            to: REACT_APP_ETHER_ESCROW_ADDRESS,
                             value: offerInWeiHex,
                         }
                             
@@ -183,31 +177,42 @@ class CommitFetcher extends Component {
     }
 
     render() {
-        const {transactionConfirmed} = this.state
-        if (!transactionConfirmed) {
+
+        if (this.props.chainId === 1) {
             return (
-                <div>
-                    <form onSubmit={this.handleMakeOffer} action="">
-                        <label htmlFor="commitUrl">Github commit URL</label><br/>
-                        <TextField onChange={this.handleChange} variant="filled" style={{ width: "95%"}} type="text" name="commitUrl" id="commitUrl" required /><br/><br/>
-                        
-                        <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
-                        <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" required/><br/><br/>
-                        
-                        {/* <label htmlFor="supporterEmailAddress">Your email address (Optional) This is where we will notify you if your offer is accepted; otherwise your wallet will automatically receive the NFT or returned offer.</label><br/>
-                        <TextField onChange={this.handleChange} variant="filled" style={{width: "60%"}} type="text" name="supporterEmailAddress" id="supporterEmailAddress"/><br/><br/> */}
-                        
-                        <Button variant="contained" type="submit" id="get-data">Open crypto wallet to make offer</Button>
-                    </form><br />
-                </div>
+                <form onSubmit={this.handleMakeOffer} action="">
+                    <label htmlFor="commitUrl">Github commit URL</label><br />
+                    <TextField onChange={this.handleChange} variant="filled" style={{ width: "95%" }} type="text" name="commitUrl" id="commitUrl" required /><br /><br />
+                    
+                    <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br />
+                    <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" required /><br /><br />
+                    
+                    <Button variant="contained" type="submit" id="get-data">Open crypto wallet to make offer</Button>
+                </form>
+            )
+        } else if (this.props.chainId === -1) {
+            return (
+                <form onSubmit="" action="">
+                    <label htmlFor="commitUrl">Github commit URL</label><br />
+                    <TextField onChange={this.handleChange} variant="filled" style={{ width: "95%" }} type="text" name="commitUrl" id="commitUrl" disabled /><br /><br />
+                    
+                    <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br />
+                    <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" disabled /><br /><br />
+                    
+                    <Button variant="contained" type="submit" id="get-data" disabled>Download MetaMask wallet to use NiftyGit</Button>
+                </form>
             )
         } else {
             return (
-                <div>
-                    <p>Transaction successful</p>
-                    <p>The committer has been notified about your offer</p>
-                    <p>We will be in touch if they accept</p>
-                </div>
+                <form onSubmit="" action="">
+                    <label htmlFor="commitUrl">Github commit URL</label><br/>
+                    <TextField onChange={this.handleChange} variant="filled" style={{ width: "95%"}} type="text" name="commitUrl" id="commitUrl" disabled /><br/><br/>
+                    
+                    <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
+                    <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" disabled/><br/><br/>
+                    
+                    <Button variant="contained" type="submit" id="get-data" color="secondary" disabled>Connect your wallet to the Ethereum Mainnet</Button>
+                </form>
             )
         }
     }
