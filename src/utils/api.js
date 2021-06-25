@@ -17,10 +17,10 @@ export const getCommit = (owner, repo, ref) => {
     })
 }
 
-export const postCommitComment = (owner, repo, ref, committerUsername) => {
+export const postCommitComment = (owner, repo, ref, committerUsername, offerAmountInEth) => {
     const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${REACT_APP_GITHUB_POST_COMMENT_ACCESS_TOKEN}`
 
-    const commentBodyText = `Hi @${committerUsername}, \nTest comment.`
+    const commentBodyText = `Hi @${committerUsername},\n\n@NiftyGit allows people to support open source software contributors by buying their commits as NFTs. \n\nSomeone has offered to support this commit for ${offerAmountInEth} Ether!\n\nTo accept this offer and mint your commit as an NFT, or for more information go to https://niftygit.io/mint-my-commit and sign in with your GitHub account.\n\nFeel free to get in touch with us by replying to this comment or through the website.\n\nThe @NiftyGit team`
 
     const commentBody = {
         body: commentBodyText

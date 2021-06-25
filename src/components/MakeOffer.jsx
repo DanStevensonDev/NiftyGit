@@ -149,7 +149,7 @@ class CommitFetcher extends Component {
                 }).then(() => {
                     // if transaction confirmed, post comment to GitHub @committerUsername
                     if (this.state.transactionConfirmed) {
-                        return postCommitComment(owner, repo, ref, committerUsername)
+                        return postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth)
                             .then(() => {
                             this.setState(() => {
                                 return {
