@@ -11,7 +11,7 @@ const { REACT_APP_ETHER_ESCROW_ADDRESS } = process.env
 console.log(REACT_APP_ETHER_ESCROW_ADDRESS)
 
 
-class MintYourCommits extends Component {
+class MintMyCommits extends Component {
     state = {
         isGithubAuthenticated: false,
         committerData: {},
@@ -194,4 +194,4 @@ class MintYourCommits extends Component {
     }
 }
 
-export default MintYourCommits;
+export default MintMyCommits;

@@ -3,14 +3,14 @@ import './App.css';
 import { Router } from '@reach/router'
 
 import Home from './components/Home'
-import MintYourCommits from './components/MintYourCommits'
+import MintMyCommits from './components/MintMyCommits'
 
 function App() {
   return (
     <div className="App">
       <Router className="content">
         <Home path="/"/>
-        <MintYourCommits path="/mint-your-commits" />
+        <MintMyCommits path="/mint-my-commits" />
       </Router>
     </div>
   );
