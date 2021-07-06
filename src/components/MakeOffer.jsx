@@ -129,10 +129,12 @@ class CommitFetcher extends Component {
                 } = this.state
 
                 const committerUsername = commitData.committer.login
+
+                const commitDataUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${ref}`
                 
                 const transactionData = {
+                    commitDataUrl,
                     committerUsername,
-                    commitData,
                     offerAmountInEth,
                     supporterAccountAddress,
                     supporterEmailAddress,
