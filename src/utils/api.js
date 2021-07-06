@@ -6,17 +6,6 @@ const commitApi = axios.create({
     baseURL: "https://api.github.com"
 })
 
-export const getCommit = (owner, repo, ref) => {
-    const apiPath = `/repos/${owner}/${repo}/commits/${ref}`
-
-    return commitApi.get(apiPath).then(({data}) => {
-        // API returns data about 30 commits
-        // return data[0] to return data
-        // only for relevant commit
-        return data
-    })
-}
-
 export const postCommitComment = (owner, repo, ref, committerUsername, offerAmountInEth) => {
     const apiPath = `/repos/${owner}/${repo}/commits/${ref}/comments?access_token=${REACT_APP_GITHUB_POST_COMMENT_ACCESS_TOKEN}`
 
