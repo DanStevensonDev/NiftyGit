@@ -8,7 +8,7 @@ const HowItWorksInfo = () => {
             <ol>
                 <li>Enter the GitHub commit URL above and the amount you would like to offer for the commit. Your offer will be transferred to escrow while the committer responds.</li>
                 <li>The committer will then get an alert through their GitHub account.</li>
-                <li>If they want to accept your offer, they can log in to NiftyGit with the GitHub account and click to accept.</li>
+                <li>If they want to accept your offer, they can log in to NiftyGit with their GitHub account and click to accept.</li>
                 <li>If they accept the offer, the commit will be minted as an ERC721 NFT and transferred to the account you made the offer from. The committer will receive your offer minus gas into the Ethereum account they specify.</li>
                 <li>If the committer rejects the offer or doesn't respond, you will be refunded your offer minus gas.</li>
             </ol>
