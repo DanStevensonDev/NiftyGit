@@ -58,22 +58,23 @@ class MetaMaskAccountInfo extends Component {
         if (userBlockchainDataLoaded && chainId === 1) {
             return (
                 <div>
-                    <p>You are connected to account {concatAccount} on the Ethereum Mainnet.</p>
+                    <h3>You are connected to account {concatAccount} on the Ethereum Mainnet.</h3>
                     <MakeOffer chainId={chainId}/>
                 </div>
             );
         } else if (userBlockchainDataLoaded) {
             return (
                 <div>
-                    <p>You are connected to account {concatAccount} on Chain ID {chainId}.</p>
-                    <p>Connect on the Ethereum Mainnet to use NiftyGit.</p>
+                    <h3 class="network-error">You are connected to account {concatAccount} on Chain ID {chainId}.</h3>
+                    <h3 class="network-error">Connect on the Ethereum Mainnet to use NiftyGit.</h3>
                     <MakeOffer chainId={chainId}/>
                 </div>
             )
         } else {
             return (
                 <div>
-                    <p>MetaMask (or other crypto wallet) account not found. Connect to your wallet browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</p>
+                    <h3 class="network-error">MetaMask (or other crypto wallet) account not found.</h3>
+                    <h3 class="network-error">Connect to your wallet's <u>desktop</u> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
                     <MakeOffer chainId={chainId}/>
                 </div>
             )
