@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
-import MakeOffer from './MakeOffer'
 
 import Web3 from 'web3'
 
+import CheckCommitIsAvailable from './CheckCommitIsAvailable'
 
 class MetaMaskAccountInfo extends Component {
     state = {
@@ -59,23 +59,23 @@ class MetaMaskAccountInfo extends Component {
             return (
                 <div>
                     <h3>You are connected to account {concatAccount} on the Ethereum Mainnet.</h3>
-                    <MakeOffer chainId={chainId}/>
+                    <CheckCommitIsAvailable />
                 </div>
             );
         } else if (userBlockchainDataLoaded) {
             return (
                 <div>
-                    <h3 class="network-error">You are connected to account {concatAccount} on Chain ID {chainId}.</h3>
-                    <h3 class="network-error">Connect on the Ethereum Mainnet to use NiftyGit.</h3>
-                    <MakeOffer chainId={chainId}/>
+                    <h3 className="network-error">You are connected to account {concatAccount} on Chain ID {chainId}.</h3>
+                    <h3 className="network-error">Connect on the Ethereum Mainnet to use NiftyGit.</h3>
+                    <CheckCommitIsAvailable />
                 </div>
             )
         } else {
             return (
                 <div>
-                    <h3 class="network-error">MetaMask (or other crypto wallet) account not found.</h3>
-                    <h3 class="network-error">Connect to your wallet's <u>desktop</u> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
-                    <MakeOffer chainId={chainId}/>
+                    <h3 className="network-error">MetaMask (or other crypto wallet) account not found.</h3>
+                    <h3 className="network-error">Connect to your wallet's <u>desktop</u> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
+                    <CheckCommitIsAvailable />
                 </div>
             )
         }
