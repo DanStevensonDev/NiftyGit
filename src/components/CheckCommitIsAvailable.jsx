@@ -2,11 +2,15 @@ import React, { Component } from 'react';
 
 import { getCommit } from '../utils/getCommit'
 
+import ReturnedCommitData from './ReturnedCommitData'
+
 import { TextField, Button } from "@material-ui/core"
 
 class CheckCommitIsAvailable extends Component {
     state = {
         commitUrl: "",
+        commitFetchError: null,
+        returnedCommitData: {},
     }
 
     checkCommitIsAvailable = (event) => {
@@ -33,9 +37,21 @@ class CheckCommitIsAvailable extends Component {
                 // API request to get commit data (if available)
                 return getCommit(owner, repo, ref)
                     .then((data) => {
-                        console.log(data)
+                        // console.log(data)
+                        this.setState(() => {
+                            return {
+                                commitFetchError: false,
+                                returnedCommitData: data
+                            }
+                        })
                     }).catch((err) => {
                         console.log(err)
+                        this.setState(() => {
+                            return {
+                                commitFetchError: true,
+                                returnedCommitData: {}
+                            }
+                        })
                     })
             }
         }
@@ -58,6 +74,8 @@ class CheckCommitIsAvailable extends Component {
                 <TextField onChange={this.handleChange} variant="filled" style={{ width: "95%" }} type="text" name="commitUrl" id="commitUrl" required /><br /><br />
 
                 <Button variant="contained" type="submit" id="get-data">Check commit is available</Button>
+
+                <ReturnedCommitData checkCommitData={this.state}/>
             </form>
         )
     }
