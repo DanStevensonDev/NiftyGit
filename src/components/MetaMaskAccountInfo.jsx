@@ -55,18 +55,28 @@ class MetaMaskAccountInfo extends Component {
         const { userBlockchainDataLoaded, supporterAccountAddress, chainId } = this.state
         const concatAccount = supporterAccountAddress.substr(-6) + "..." + supporterAccountAddress.substr(supporterAccountAddress.length - 4)
         
-        if (userBlockchainDataLoaded && chainId === 1) {
+        if (userBlockchainDataLoaded && chainId === 4) {
             return (
                 <div>
-                    <h3>You are connected to account {concatAccount} on the Ethereum Mainnet.</h3>
+                    <h3>You are connected to account {concatAccount} on the Rinkeby Testnet.</h3>
                     <CheckCommitIsAvailable />
                 </div>
             );
+        } else if (userBlockchainDataLoaded && chainId === 1) {
+            return (
+                <div>
+                    <h3 className="network-error">You are connected to account {concatAccount} on the Ethereum Mainnet.</h3>
+                    <h3 className="network-error">NiftyGit is in Beta mode and you should not use "real" Ether.</h3>
+                    <h3 className="network-error">Connect on the Rinkeby Testnet through your crypto wallet and refresh this page to use NiftyGit.</h3>
+                    <CheckCommitIsAvailable />
+                </div>
+            )
         } else if (userBlockchainDataLoaded) {
             return (
                 <div>
                     <h3 className="network-error">You are connected to account {concatAccount} on Chain ID {chainId}.</h3>
-                    <h3 className="network-error">Connect on the Ethereum Mainnet to use NiftyGit.</h3>
+                    <h3 className="network-error">NiftyGit is in Beta mode and you should not use "real" Ether.</h3>
+                    <h3 className="network-error">Connect on the Rinkeby Testnet through your crypto wallet and refresh this page to use NiftyGit.</h3>
                     <CheckCommitIsAvailable />
                 </div>
             )
@@ -74,7 +84,7 @@ class MetaMaskAccountInfo extends Component {
             return (
                 <div>
                     <h3 className="network-error">MetaMask (or other crypto wallet) account not found.</h3>
-                    <h3 className="network-error">Connect to your wallet's <u>desktop</u> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
+                    <h3 className="network-error">Connect to your wallet's <strong>desktop</strong> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
                     <CheckCommitIsAvailable />
                 </div>
             )

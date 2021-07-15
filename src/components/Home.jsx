@@ -11,7 +11,7 @@ class Home extends Component {
                 <div className="beta-version-banner">
                     <p><strong>BETA:</strong> NiftyGit is currently in beta mode on the Rinkeby Ethereum Testnet.</p>
                     <p>Any minted commits are for test purposes only and should not be purchased with "real" Ether.</p>
-                    <p>To get Rinkeby test Eth and use NiftyGit, go to <a href="https://faucet.rinkeby.io/" target="_blank" rel="noreferrer">faucet.rinkeby.io</a></p>
+                    <p>To get Rinkeby test Ether and use NiftyGit, go to <a href="https://faucet.rinkeby.io/" target="_blank" rel="noreferrer">faucet.rinkeby.io</a></p>
                 </div>
                 <div className="homepage-header">
                     <header>
