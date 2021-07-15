@@ -10,6 +10,13 @@ header {
   color: white;
 }
 
+.beta-version-banner {
+  background-color: red;
+  color: white;
+  text-align: center;
+  padding: 10px;
+}
+
 main {
   padding: 5px 0 15px 5%;
   background-color: #21325b;
