@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 
-import { getCommit, postCommitComment } from '../utils/api'
+import { postCommitComment } from '../utils/api'
+import { getCommit } from '../utils/getCommit'
 import { postOffer } from '../utils/backendApi'
 
 import { TextField, Button } from "@material-ui/core"
 
 const {REACT_APP_ETHER_ESCROW_ADDRESS} = process.env
 
-class CommitFetcher extends Component {
+class MakeOffer extends Component {
     state = {
         commitUrl: "",
         offerAmountInEth: 0,
@@ -18,14 +19,27 @@ class CommitFetcher extends Component {
         supporterAccountAddress: "",
         transactionHash: "",
         transactionTime: 0,
-        commitCommentPosted: false,
+        commitCommentPosted: null,
+        transactionSuccessOrErrorMessage: "",
+    }
+
+    componentDidUpdate() {
+        if (this.state.commitCommentPosted === true) {
+            this.setState(() => {
+                return {
+                    // reset commitCommentPosted to avoid re-calling setState
+                    commitCommentPosted: null,
+                    transactionSuccessOrErrorMessage: "Transaction successful"
+                }
+            })
+        }
     }
 
     handleMakeOffer = (event) => {
         // initial form validation
         // check connected to Ethereum Mainnet
-        if (this.props.chainId !== 1) {
-            alert("You need to connect to the Ethereum Mainnet to make an offer on a commit")
+        if (this.props.chainId !== 4) {
+            alert("You need to connect to the Rinkeby Testnet to make an offer on a commit")
 
         // check URL
         } else if (!this.state.commitUrl.startsWith("https://github.com/")) {
@@ -133,6 +147,7 @@ class CommitFetcher extends Component {
                 const commitDataUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${ref}`
                 
                 const transactionData = {
+                    offerStatus: "Awaiting response from committer",
                     commitDataUrl,
                     committerUsername,
                     offerAmountInEth,
@@ -153,7 +168,7 @@ class CommitFetcher extends Component {
                     if (this.state.transactionConfirmed) {
                         return postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth)
                             .then(() => {
-                            this.setState(() => {
+                                this.setState(() => {
                                 return {
                                     commitCommentPosted: true,
                                 }
@@ -180,7 +195,7 @@ class CommitFetcher extends Component {
 
     render() {
 
-        if (this.props.chainId === 1) {
+        if (this.props.chainId === 4) {
             return (
                 <form onSubmit={this.handleMakeOffer} action="">
                     <label htmlFor="commitUrl">Github commit URL</label><br />
@@ -190,6 +205,9 @@ class CommitFetcher extends Component {
                     <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" required /><br /><br />
                     
                     <Button variant="contained" type="submit" id="get-data">Open crypto wallet to make offer</Button>
+
+                    {/* Display transaction success/error message */}
+                    <p>{ this.state.transactionSuccessOrErrorMessage }</p>
                 </form>
             )
         } else if (this.props.chainId === -1) {
@@ -213,11 +231,11 @@ class CommitFetcher extends Component {
                     <label htmlFor="offerAmountInEth">Your offer in Ether (minimum offer = 0.005 eth)</label><br/>
                     <TextField onChange={this.handleChange} variant="filled" type="text" name="offerAmountInEth" id="offerAmountInEth" disabled/><br/><br/>
                     
-                    <Button variant="contained" type="submit" id="get-data" color="secondary" disabled>Connect your wallet to the Ethereum Mainnet</Button>
+                    <Button variant="contained" type="submit" id="get-data" color="secondary" disabled>Connect your wallet to the Rinkeby Testnet</Button>
                 </form>
             )
         }
     }
 }
 
-export default CommitFetcher;
+export default MakeOffer;

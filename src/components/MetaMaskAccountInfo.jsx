@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 
 import Web3 from 'web3'
 
-import CheckCommitIsAvailable from './CheckCommitIsAvailable'
+import MakeOffer from './MakeOffer'
 
 class MetaMaskAccountInfo extends Component {
     state = {
@@ -59,7 +59,7 @@ class MetaMaskAccountInfo extends Component {
             return (
                 <div>
                     <h3>You are connected to account {concatAccount} on the Rinkeby Testnet.</h3>
-                    <CheckCommitIsAvailable />
+                    <MakeOffer chainId={chainId}/>
                 </div>
             );
         } else if (userBlockchainDataLoaded && chainId === 1) {
@@ -68,7 +68,7 @@ class MetaMaskAccountInfo extends Component {
                     <h3 className="network-error">You are connected to account {concatAccount} on the Ethereum Mainnet.</h3>
                     <h3 className="network-error">NiftyGit is in Beta mode and you should not use "real" Ether.</h3>
                     <h3 className="network-error">Connect on the Rinkeby Testnet through your crypto wallet and refresh this page to use NiftyGit.</h3>
-                    <CheckCommitIsAvailable />
+                    <MakeOffer chainId={chainId}/>
                 </div>
             )
         } else if (userBlockchainDataLoaded) {
@@ -77,7 +77,7 @@ class MetaMaskAccountInfo extends Component {
                     <h3 className="network-error">You are connected to account {concatAccount} on Chain ID {chainId}.</h3>
                     <h3 className="network-error">NiftyGit is in Beta mode and you should not use "real" Ether.</h3>
                     <h3 className="network-error">Connect on the Rinkeby Testnet through your crypto wallet and refresh this page to use NiftyGit.</h3>
-                    <CheckCommitIsAvailable />
+                    <MakeOffer chainId={chainId}/>
                 </div>
             )
         } else {
@@ -85,7 +85,7 @@ class MetaMaskAccountInfo extends Component {
                 <div>
                     <h3 className="network-error">MetaMask (or other crypto wallet) account not found.</h3>
                     <h3 className="network-error">Connect to your wallet's <strong>desktop</strong> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
-                    <CheckCommitIsAvailable />
+                    <MakeOffer chainId={chainId}/>
                 </div>
             )
         }
