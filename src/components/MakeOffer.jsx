@@ -61,6 +61,14 @@ class MakeOffer extends Component {
         } else {
         
         event.preventDefault()
+            
+        this.setState(() => {
+            return {
+                // set wallet popup message
+                transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
+            }
+        })
+
         const { commitUrl } = this.state
 
         const commitUrlDirectories = commitUrl.split("/").reverse()
@@ -73,7 +81,6 @@ class MakeOffer extends Component {
         // get commit data from GitHub
         return getCommit(owner, repo, ref)
             .then((commitData) => {
-                console.log(commitData)
                 this.setState({ commitData })
             }).catch((err) => {
                 return err 
@@ -131,7 +138,12 @@ class MakeOffer extends Component {
                 }
             }).then(() => {
                 if (!this.state.transactionConfirmed) {
-                    console.log("transaction abandoned")
+                    this.setState(() => {
+                        return {
+                            // set transaction unsuccessful message
+                            transactionSuccessOrErrorMessage: "Transaction unsuccessful. No ether has been transferred from your wallet. Please check your wallet and try again."
+                        }
+                    })
                 } else {
                     // postOffer
                 const { commitData,
@@ -156,8 +168,6 @@ class MakeOffer extends Component {
                     transactionHash,
                     transactionTime
                 }
-                
-                console.log(transactionData)
 
                 return postOffer(transactionData).then((data) => {
                     console.log(data)
