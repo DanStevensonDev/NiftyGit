@@ -92,7 +92,7 @@ class MakeOffer extends Component {
                 const offerInWeiHex = offerInWei.toString(16)
 
                 // check MetaMask is installed
-                if (typeof window.ethereum !== 'undefined') {
+                if (window.ethereum) {
                     // create request to escrow account
                     return window.ethereum.request({ method: 'eth_requestAccounts' })
                         .then(() => {
