@@ -1,7 +1,7 @@
 {
   "name": "niftygit",
   "version": "0.1.0",
-  "private": true,
+  "private": false,
   "dependencies": {
     "@analytics/google-analytics": "^0.5.3",
     "@material-ui/core": "^4.11.4",
