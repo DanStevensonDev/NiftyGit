@@ -83,8 +83,8 @@ class MetaMaskAccountInfo extends Component {
         } else {
             return (
                 <div>
-                    <h3 className="network-error">MetaMask (or other crypto wallet) account not found.</h3>
-                    <h3 className="network-error">Connect to your wallet's <strong>desktop</strong> browser extension or <a href="https://metamask.io/" target="_blank" rel="noreferrer">sign up to MetaMask</a>.</h3>
+                    <h3 className="network-error">You are not signed in to a crypto wallet (e.g. MetaMask).</h3>
+                    <h3 className="network-error">Connect to your wallet's <strong>desktop</strong> browser extension or <a href="https://metamask.io/download.html" target="_blank" rel="noreferrer">get the MetaMask browser extension</a>.</h3>
                     <MakeOffer chainId={chainId}/>
                 </div>
             )
