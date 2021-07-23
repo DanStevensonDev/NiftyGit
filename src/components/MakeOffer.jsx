@@ -29,7 +29,7 @@ class MakeOffer extends Component {
                 return {
                     // reset commitCommentPosted to avoid re-calling setState
                     commitCommentPosted: null,
-                    transactionSuccessOrErrorMessage: "Transaction successful"
+                    transactionSuccessOrErrorMessage: "Transaction successful! The committer has been notified with a comment on GitHub."
                 }
             })
         }
