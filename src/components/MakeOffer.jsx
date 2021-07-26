@@ -37,16 +37,8 @@ class MakeOffer extends Component {
 
     handleMakeOffer = (event) => {
         // initial form validation
-        // check connected to Ethereum Mainnet
-        if (this.props.chainId !== 4) {
-            alert("You need to connect to the Rinkeby Testnet to make an offer on a commit")
-
-        // check URL
-        } else if (!this.state.commitUrl.startsWith("https://github.com/")) {
-            alert("Enter the full commit URL, starting with \"https://github.com\"")
-        
         // check offer is a number
-        } else if (!Number(this.state.offerAmountInEth)) {
+        if (!Number(this.state.offerAmountInEth)) {
             alert("Your offer must be a number")
 
         // check offer is larger than minimum
