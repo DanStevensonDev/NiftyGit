@@ -36,27 +36,30 @@ class MakeOffer extends Component {
     }
 
     handleMakeOffer = (event) => {
-        // initial form validation
-        // check offer is a number
-        if (!Number(this.state.offerAmountInEth)) {
-            alert("Your offer must be a number")
+        // prevent default form submission before validation
+        event.preventDefault()
 
+        // initial form validation
+        // check offer amount is a number
+        if (!Number(this.state.offerAmountInEth)) {
+            this.setState(() => {
+                return {
+                    // set error message
+                    transactionSuccessOrErrorMessage: "Enter a number as your offer amount"
+                }
+            })
         // check offer is larger than minimum
         } else if (this.state.offerAmountInEth < 0.005) {
-            alert("Your offer must be higher than 0.005 Eth")
-
-        // check if an email address is entered, it meets basic requirements
-        } else if (this.state.supporterEmailAddress && 
-            (!this.state.supporterEmailAddress.includes("@") ||
-            !this.state.supporterEmailAddress.includes("."))) {
-                alert("Enter a valid email address or leave blank")
-        } else {
-        
-        event.preventDefault()
-            
+            this.setState(() => {
+                return {
+                    // set error message
+                    transactionSuccessOrErrorMessage: "Your offer must be higher than 0.005 Eth"
+                }
+            })
+        } else {            
         this.setState(() => {
             return {
-                // set wallet popup message
+                // set wallet instructions message
                 transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
             }
         })
