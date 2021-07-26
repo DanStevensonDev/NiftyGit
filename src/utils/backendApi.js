@@ -9,7 +9,7 @@ const backendApi = axios.create({
 export const getOffersByCommitter = (committerUsername) => {
     return backendApi.get(`/api/offers?committer=${committerUsername}`)
         .then((data) => {
-            console.log(data)
+            // console.log(data)
             return data
     })
 }

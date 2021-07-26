@@ -14,6 +14,6 @@ export const getUserAccessToken = (tempCode) => {
             'Content-Type': 'application/json'
     }
     }).then((data) => {
-        console.log(data)
+        // console.log(data)
     })
 }

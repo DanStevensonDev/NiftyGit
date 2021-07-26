@@ -8,7 +8,7 @@ import Web3 from 'web3'
 import NiftyGit from '../abis/NiftyGit.json'
 
 const { REACT_APP_ETHER_ESCROW_ADDRESS } = process.env
-console.log(REACT_APP_ETHER_ESCROW_ADDRESS)
+// console.log(REACT_APP_ETHER_ESCROW_ADDRESS)
 
 
 class MintMyCommits extends Component {
@@ -69,7 +69,7 @@ class MintMyCommits extends Component {
 
         // gets network ID - with Ganache set as host in config, networkId will be 5777
         const networkId = await web3.eth.net.getId()
-        console.log(networkId)
+        // console.log(networkId)
         
         // available to check chainId
         // Can be different to network ID in case of Ethereum Classic(vs Mainnet)
@@ -109,11 +109,11 @@ class MintMyCommits extends Component {
         const offerInWei = offerInGwei * 1000000000
         const offerInWeiHex = offerInWei.toString(16)
         
-        console.log(commitSHA, "commitSHA")
-        console.log(REACT_APP_ETHER_ESCROW_ADDRESS, "REACT_APP_ETHER_ESCROW_ADDRESS")
-        console.log(supporterAccountAddress, "supporterAccountAddress")
-        console.log(window.ethereum.selectedAddress, "committerAccountAddress")
-        console.log(offerInWeiHex, "offerInWeiHex")
+        // console.log(commitSHA, "commitSHA")
+        // console.log(REACT_APP_ETHER_ESCROW_ADDRESS, "REACT_APP_ETHER_ESCROW_ADDRESS")
+        // console.log(supporterAccountAddress, "supporterAccountAddress")
+        // console.log(window.ethereum.selectedAddress, "committerAccountAddress")
+        // console.log(offerInWeiHex, "offerInWeiHex")
 
         const transactionParameters = {
             // ISSUE: unable to initiate transaction from escrow account to current user account
@@ -131,14 +131,14 @@ class MintMyCommits extends Component {
             method: 'eth_sendTransaction',
             params: [transactionParameters],
         }).catch((err) => {
-            console.log(err)
+            // console.log(err)
             return err
         
         // check that no error code returned
         // therefore transaction confirmed
         // set state to transaction data
         }).then((data) => {
-            console.log(data)
+            // console.log(data)
         })
 
         // this.state.contract.methods.mint(commitSHA).send({ from: supporterAccountAddress })
@@ -175,7 +175,7 @@ class MintMyCommits extends Component {
                         </thead>
                         <tbody>
                             {offersData.map((offer) => {
-                                console.log(offer)
+                                // console.log(offer)
                                 const { offerId, supporterAccountAddress, offerAmountInEth, commitData } = offer
                                 const commitSHA = commitData.sha
                                 return (

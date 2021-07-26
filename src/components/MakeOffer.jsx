@@ -170,7 +170,7 @@ class MakeOffer extends Component {
                 }
 
                 return postOffer(transactionData).then((data) => {
-                    console.log(data)
+                    // console.log(data)
                 }).catch((err) => {
                     return err
                 }).then(() => {
