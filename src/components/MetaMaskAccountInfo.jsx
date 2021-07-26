@@ -53,7 +53,7 @@ class MetaMaskAccountInfo extends Component {
     
     render() {
         const { userBlockchainDataLoaded, supporterAccountAddress, chainId } = this.state
-        const concatAccount = supporterAccountAddress.substr(0, 6) + "..." + supporterAccountAddress.substr(supporterAccountAddress.length - 4)
+        const concatAccount = supporterAccountAddress.substr(0, 6) + "..." + supporterAccountAddress.substr(-4)
         
         if (userBlockchainDataLoaded && chainId === 4) {
             return (
