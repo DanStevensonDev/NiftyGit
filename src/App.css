@@ -49,3 +49,15 @@ label {
   background-color: white;
   color: #374975;
 }
+
+footer {
+  background-color: #21325b;
+  color: white;
+  padding: 10px 0;
+  margin-top: 50px;
+}
+
+footer p {
+  margin: 0 2% 0 5%;
+  display: inline-block;
+}

@@ -6,6 +6,7 @@ import googleAnalytics from '@analytics/google-analytics'
 import HeaderIntro from './HeaderIntro'
 import MetaMaskAccountInfo from './MetaMaskAccountInfo'
 import HowItWorksInfo from './HowItWorksInfo'
+import Footer from './Footer'
 
 
 const analytics = Analytics({
@@ -38,6 +39,7 @@ class Home extends Component {
                     </main>
                 </div>
                 <HowItWorksInfo />
+                <Footer />
             </div>
         );
     }
