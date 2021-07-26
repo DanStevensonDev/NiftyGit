@@ -13,7 +13,7 @@ const HowItWorksInfo = () => {
                 <li>If the committer rejects the offer or doesn't respond, you will be refunded your offer minus gas.</li>
             </ol>
             
-            <h3>"What's 'gas'?" / "Oh yeah, what about gas?"</h3>
+            <h3>What's 'gas'?</h3>
             <p>'Gas' is the term for the fee for making Ethereum (and other cryptocurrency) transactions.</p>
             <p>When you place an offer, your crypto wallet (e.g. MetaMask) will suggest a gas fee for you to pay on top of the offer to make sure the transaction goes through successfully.</p>
             <p>Similarly, when NiftyGit pays out to committers, the amount sent will be the offer minus minting and transaction gas.</p>
