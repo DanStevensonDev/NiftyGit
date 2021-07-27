@@ -124,7 +124,8 @@ class MakeOffer extends Component {
                                             transactionConfirmed: true,
                                             supporterAccountAddress: window.ethereum.selectedAddress,
                                             transactionHash: data,
-                                            transactionTime: transactionTimeUnix
+                                            transactionTime: transactionTimeUnix,
+                                            transactionSuccessOrErrorMessage: "Contacting the committer via GitHub..."
                                         }
                                     })
                                 }
