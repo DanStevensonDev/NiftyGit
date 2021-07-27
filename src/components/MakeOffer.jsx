@@ -57,12 +57,6 @@ class MakeOffer extends Component {
                 }
             })
         } else {            
-        this.setState(() => {
-            return {
-                // set wallet instructions message
-                transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
-            }
-        })
 
         const { commitUrl } = this.state
 
@@ -72,119 +66,135 @@ class MakeOffer extends Component {
         const repo = commitUrlDirectories[2]
         const ref = commitUrlDirectories[0]
 
-
-        // get commit data from GitHub
-        return getCommit(owner, repo, ref)
-            .then((commitData) => {
-                this.setState({ commitData })
-            }).catch((err) => {
-                return err 
-            }).then(() => {
-                // calculate offer in Hex needed for web3 request function
-                const offerInEth = this.state.offerAmountInEth
-                const offerInGwei = offerInEth * 1000000000
-                const offerInWei = offerInGwei * 1000000000
-                const offerInWeiHex = offerInWei.toString(16)
-
-                // check MetaMask is installed
-                if (window.ethereum) {
-                    // create request to escrow account
-                    return window.ethereum.request({ method: 'eth_requestAccounts' })
-                        .then(() => {
-                        const transactionParameters = {
-                            from: window.ethereum.selectedAddress,
-                            to: REACT_APP_ETHER_ESCROW_ADDRESS,
-                            value: offerInWeiHex,
-                        }
-                            
-                        return window.ethereum.request({
-                            method: 'eth_sendTransaction',
-                            params: [transactionParameters],
-                        }).catch((err) => {
-                            return err
-                        
-                        // check that no error code returned
-                        // therefore transaction confirmed
-                        // set state to transaction data
-                        }).then((data) => {
-                            if (!data.code) {
-                                this.setState(() => {
-                                    const transactionTimeUnix = Date.now()
-                                    return {
-                                        isMetaMaskInstalled: true,
-                                        transactionConfirmed: true,
-                                        supporterAccountAddress: window.ethereum.selectedAddress,
-                                        transactionHash: data,
-                                        transactionTime: transactionTimeUnix
-                                    }
-                                })
-                            }
-                        }).catch((err) => {
-                            return err
-                        })
-                        })
-                } else {
-                    // set state if MetaMask not installed
-                    return this.setState(() => {
-                        return {
-                            isMetaMaskInstalled: false,
-                        }
-                    })
+        if (owner === undefined || repo === undefined || ref === undefined) {
+            this.setState(() => {
+                return {
+                    // set wallet instructions message
+                    transactionSuccessOrErrorMessage: "Copy and paste a valid GitHub commit URL."
                 }
-            }).then(() => {
-                if (!this.state.transactionConfirmed) {
-                    this.setState(() => {
-                        return {
-                            // set transaction unsuccessful message
-                            transactionSuccessOrErrorMessage: "Transaction unsuccessful. No ether has been transferred from your wallet. Please check your wallet and try again."
-                        }
-                    })
-                } else {
-                    // postOffer
-                const { commitData,
-                    offerAmountInEth,
-                    supporterAccountAddress,
-                    supporterEmailAddress,
-                    transactionHash,
-                    transactionTime
-                } = this.state
-
-                const committerUsername = commitData.committer.login
-
-                const commitDataUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${ref}`
-                
-                const transactionData = {
-                    offerStatus: "Awaiting response from committer",
-                    commitDataUrl,
-                    committerUsername,
-                    offerAmountInEth,
-                    supporterAccountAddress,
-                    supporterEmailAddress,
-                    transactionHash,
-                    transactionTime
-                }
-
-                return postOffer(transactionData).then((data) => {
-                    // console.log(data)
+            })
+        } else {
+            // get commit data from GitHub
+            return getCommit(owner, repo, ref)
+                .then((commitData) => {
+                    console.log(commitData)
+                    this.setState({ commitData })
                 }).catch((err) => {
-                    return err
+                    return err 
                 }).then(() => {
-                    // if transaction confirmed, post comment to GitHub @committerUsername
-                    if (this.state.transactionConfirmed) {
-                        return postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth, transactionHash)
+                    // calculate offer in Hex needed for web3 request function
+                    const offerInEth = this.state.offerAmountInEth
+                    const offerInGwei = offerInEth * 1000000000
+                    const offerInWei = offerInGwei * 1000000000
+                    const offerInWeiHex = offerInWei.toString(16)
+    
+                    // check MetaMask is installed
+                    if (window.ethereum) {
+                        // create request to escrow account
+                        this.setState(() => {
+                            return {
+                                // set wallet instructions message
+                                transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
+                            }
+                        })
+    
+                        return window.ethereum.request({ method: 'eth_requestAccounts' })
                             .then(() => {
-                                this.setState(() => {
-                                return {
-                                    commitCommentPosted: true,
+                            const transactionParameters = {
+                                from: window.ethereum.selectedAddress,
+                                to: REACT_APP_ETHER_ESCROW_ADDRESS,
+                                value: offerInWeiHex,
+                            }
+                                
+                            return window.ethereum.request({
+                                method: 'eth_sendTransaction',
+                                params: [transactionParameters],
+                            }).catch((err) => {
+                                return err
+                            
+                            // check that no error code returned
+                            // therefore transaction confirmed
+                            // set state to transaction data
+                            }).then((data) => {
+                                if (!data.code) {
+                                    this.setState(() => {
+                                        const transactionTimeUnix = Date.now()
+                                        return {
+                                            isMetaMaskInstalled: true,
+                                            transactionConfirmed: true,
+                                            supporterAccountAddress: window.ethereum.selectedAddress,
+                                            transactionHash: data,
+                                            transactionTime: transactionTimeUnix
+                                        }
+                                    })
                                 }
+                            }).catch((err) => {
+                                return err
                             })
+                            })
+                    } else {
+                        // set state if MetaMask not installed
+                        return this.setState(() => {
+                            return {
+                                isMetaMaskInstalled: false,
+                            }
                         })
                     }
-                }).catch((err) => {
-                    return err
-                })
-            }
-        })
+                }).then(() => {
+                    if (!this.state.transactionConfirmed) {
+                        this.setState(() => {
+                            return {
+                                // set transaction unsuccessful message
+                                transactionSuccessOrErrorMessage: "Transaction unsuccessful. No ether has been transferred from your wallet. Please check your wallet and try again."
+                            }
+                        })
+                    } else {
+                        // postOffer
+                    const { commitData,
+                        offerAmountInEth,
+                        supporterAccountAddress,
+                        supporterEmailAddress,
+                        transactionHash,
+                        transactionTime
+                    } = this.state
+    
+                    const committerUsername = commitData.committer.login
+    
+                    const commitDataUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${ref}`
+                    
+                    const transactionData = {
+                        offerStatus: "Awaiting response from committer",
+                        commitDataUrl,
+                        committerUsername,
+                        offerAmountInEth,
+                        supporterAccountAddress,
+                        supporterEmailAddress,
+                        transactionHash,
+                        transactionTime
+                    }
+    
+                    return postOffer(transactionData).then((data) => {
+                        // console.log(data)
+                    }).catch((err) => {
+                        return err
+                    }).then(() => {
+                        // if transaction confirmed, post comment to GitHub @committerUsername
+                        if (this.state.transactionConfirmed) {
+                            return postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth, transactionHash)
+                                .then(() => {
+                                    this.setState(() => {
+                                    return {
+                                        commitCommentPosted: true,
+                                    }
+                                })
+                            })
+                        }
+                    }).catch((err) => {
+                        return err
+                    })
+                }
+            })
+        }
         }   
     }
 
