@@ -88,59 +88,49 @@ class MakeOffer extends Component {
                     const offerInWei = offerInGwei * 1000000000
                     const offerInWeiHex = offerInWei.toString(16)
     
-                    // check MetaMask is installed
-                    if (window.ethereum) {
-                        // create request to escrow account
-                        this.setState(() => {
-                            return {
-                                // set wallet instructions message
-                                transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
-                            }
-                        })
-    
-                        return window.ethereum.request({ method: 'eth_requestAccounts' })
-                            .then(() => {
-                            const transactionParameters = {
-                                from: window.ethereum.selectedAddress,
-                                to: REACT_APP_ETHER_ESCROW_ADDRESS,
-                                value: offerInWeiHex,
-                            }
-                                
-                            return window.ethereum.request({
-                                method: 'eth_sendTransaction',
-                                params: [transactionParameters],
-                            }).catch((err) => {
-                                return err
+                    // create request to escrow account
+                    this.setState(() => {
+                        return {
+                            // set wallet instructions message
+                            transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
+                        }
+                    })
+
+                    return window.ethereum.request({ method: 'eth_requestAccounts' })
+                        .then(() => {
+                        const transactionParameters = {
+                            from: window.ethereum.selectedAddress,
+                            to: REACT_APP_ETHER_ESCROW_ADDRESS,
+                            value: offerInWeiHex,
+                        }
                             
-                            // check that no error code returned
-                            // therefore transaction confirmed
-                            // set state to transaction data
-                            }).then((data) => {
-                                if (!data.code) {
-                                    this.setState(() => {
-                                        const transactionTimeUnix = Date.now()
-                                        return {
-                                            isMetaMaskInstalled: true,
-                                            transactionConfirmed: true,
-                                            supporterAccountAddress: window.ethereum.selectedAddress,
-                                            transactionHash: data,
-                                            transactionTime: transactionTimeUnix,
-                                            transactionSuccessOrErrorMessage: "Contacting the committer via GitHub..."
-                                        }
-                                    })
-                                }
-                            }).catch((err) => {
-                                return err
-                            })
-                            })
-                    } else {
-                        // set state if MetaMask not installed
-                        return this.setState(() => {
-                            return {
-                                isMetaMaskInstalled: false,
+                        return window.ethereum.request({
+                            method: 'eth_sendTransaction',
+                            params: [transactionParameters],
+                        }).catch((err) => {
+                            return err
+                        
+                        // check that no error code returned
+                        // therefore transaction confirmed
+                        // set state to transaction data
+                        }).then((data) => {
+                            if (!data.code) {
+                                this.setState(() => {
+                                    const transactionTimeUnix = Date.now()
+                                    return {
+                                        isMetaMaskInstalled: true,
+                                        transactionConfirmed: true,
+                                        supporterAccountAddress: window.ethereum.selectedAddress,
+                                        transactionHash: data,
+                                        transactionTime: transactionTimeUnix,
+                                        transactionSuccessOrErrorMessage: "Contacting the committer via GitHub..."
+                                    }
+                                })
                             }
+                        }).catch((err) => {
+                            return err
                         })
-                    }
+                    })
                 }).then(() => {
                     if (!this.state.transactionConfirmed) {
                         this.setState(() => {
