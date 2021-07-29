@@ -38,6 +38,12 @@ form {
   border-radius: 8px;
 }
 
+input[type=text] {
+  background-color: white;
+  border-radius: 5px;
+  border: solid black 1px;
+}
+
 label {
   display: inline-block;
   margin-bottom: 15px;
