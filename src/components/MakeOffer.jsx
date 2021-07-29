@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 
+import {validateFormValues} from '../utils/validateFormValues'
 import { postCommitComment } from '../utils/api'
 import { getCommit } from '../utils/getCommit'
 import { postOffer } from '../utils/backendApi'
@@ -38,46 +39,26 @@ class MakeOffer extends Component {
     handleMakeOffer = (event) => {
         // prevent default form submission before validation
         event.preventDefault()
+        
+        const {offerAmountInEth, commitUrl} = this.state
 
-        // initial form validation
-        // check offer amount is a number
-        if (!Number(this.state.offerAmountInEth)) {
-            this.setState(() => {
-                return {
-                    // set error message
-                    transactionSuccessOrErrorMessage: "Enter a number as your offer amount"
-                }
-            })
-        // check offer is larger than minimum
-        } else if (this.state.offerAmountInEth < 0.005) {
-            this.setState(() => {
-                return {
-                    // set error message
-                    transactionSuccessOrErrorMessage: "Your offer must be higher than 0.005 Eth"
-                }
-            })
-        } else {            
+        const formValidationResponse = validateFormValues(offerAmountInEth, commitUrl)
+        this.setState(() => {
+            return {
+                transactionSuccessOrErrorMessage: formValidationResponse
+            }
+        })
+        
+        if (this.state.transactionSuccessOrErrorMessage === "") {
+            const commitUrlDirectories = commitUrl.split("/").reverse()
+    
+            const owner = commitUrlDirectories[3]
+            const repo = commitUrlDirectories[2]
+            const ref = commitUrlDirectories[0]
 
-        const { commitUrl } = this.state
-
-        const commitUrlDirectories = commitUrl.split("/").reverse()
-
-        const owner = commitUrlDirectories[3]
-        const repo = commitUrlDirectories[2]
-        const ref = commitUrlDirectories[0]
-
-        if (owner === undefined || repo === undefined || ref === undefined) {
-            this.setState(() => {
-                return {
-                    // set wallet instructions message
-                    transactionSuccessOrErrorMessage: "Copy and paste a valid GitHub commit URL."
-                }
-            })
-        } else {
             // get commit data from GitHub
             return getCommit(owner, repo, ref)
                 .then((commitData) => {
-                    console.log(commitData)
                     this.setState({ commitData })
                 }).catch((err) => {
                     return err 
@@ -95,7 +76,7 @@ class MakeOffer extends Component {
                             transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
                         }
                     })
-
+    
                     return window.ethereum.request({ method: 'eth_requestAccounts' })
                         .then(() => {
                         const transactionParameters = {
@@ -123,7 +104,7 @@ class MakeOffer extends Component {
                                         supporterAccountAddress: window.ethereum.selectedAddress,
                                         transactionHash: data,
                                         transactionTime: transactionTimeUnix,
-                                        transactionSuccessOrErrorMessage: "Contacting the committer via GitHub..."
+                                        transactionSuccessOrErrorMessage: "Contacting the committer via GitHub... Please wait..."
                                     }
                                 })
                             }
@@ -186,7 +167,6 @@ class MakeOffer extends Component {
                 }
             })
         }
-        }   
     }
 
     handleChange = (event) => {
