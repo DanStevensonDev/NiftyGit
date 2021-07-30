@@ -15,7 +15,7 @@ class MakeOffer extends Component {
         offerAmountInEth: 0,
         commitData: null,
         isMetaMaskInstalled: null,
-        transactionConfirmed: false,
+        transactionConfirmed: null,
         supporterEmailAddress: "",
         supporterAccountAddress: "",
         transactionHash: "",
@@ -63,64 +63,79 @@ class MakeOffer extends Component {
                 }).catch((err) => {
                     return err 
                 }).then(() => {
-                    // calculate offer in Hex needed for web3 request function
-                    const offerInEth = this.state.offerAmountInEth
-                    const offerInGwei = offerInEth * 1000000000
-                    const offerInWei = offerInGwei * 1000000000
-                    const offerInWeiHex = offerInWei.toString(16)
-    
-                    // create request to escrow account
-                    this.setState(() => {
-                        return {
-                            // set wallet instructions message
-                            transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
-                        }
-                    })
-    
-                    return window.ethereum.request({ method: 'eth_requestAccounts' })
-                        .then(() => {
-                        const transactionParameters = {
-                            from: window.ethereum.selectedAddress,
-                            to: REACT_APP_ETHER_ESCROW_ADDRESS,
-                            value: offerInWeiHex,
-                        }
-                            
-                        return window.ethereum.request({
-                            method: 'eth_sendTransaction',
-                            params: [transactionParameters],
-                        }).catch((err) => {
-                            return err
-                        
-                        // check that no error code returned
-                        // therefore transaction confirmed
-                        // set state to transaction data
-                        }).then((data) => {
-                            if (!data.code) {
-                                this.setState(() => {
-                                    const transactionTimeUnix = Date.now()
-                                    return {
-                                        isMetaMaskInstalled: true,
-                                        transactionConfirmed: true,
-                                        supporterAccountAddress: window.ethereum.selectedAddress,
-                                        transactionHash: data,
-                                        transactionTime: transactionTimeUnix,
-                                        transactionSuccessOrErrorMessage: "Contacting the committer via GitHub... Please wait..."
-                                    }
-                                })
+                    if (!this.state.commitData) {
+                        this.setState(() => {
+                            return {
+                                // set transaction unsuccessful message
+                                transactionSuccessOrErrorMessage: "Could not get commit data. Please check that it is a public commit (i.e. it should be visible if visiting the link in incognito mode)."
                             }
-                        }).catch((err) => {
-                            return err
                         })
-                    })
+                    } else {
+                        // calculate offer in Hex needed for web3 request function
+                        const offerInEth = this.state.offerAmountInEth
+                        const offerInGwei = offerInEth * 1000000000
+                        const offerInWei = offerInGwei * 1000000000
+                        const offerInWeiHex = offerInWei.toString(16)
+        
+                        // create request to escrow account
+                        this.setState(() => {
+                            return {
+                                // set wallet instructions message
+                                transactionSuccessOrErrorMessage: "Confirm the transaction in your crypto wallet. Your wallet browser extension should open automatically."
+                            }
+                        })
+        
+                        return window.ethereum.request({ method: 'eth_requestAccounts' })
+                            .then(() => {
+                            const transactionParameters = {
+                                from: window.ethereum.selectedAddress,
+                                to: REACT_APP_ETHER_ESCROW_ADDRESS,
+                                value: offerInWeiHex,
+                            }
+                                
+                            return window.ethereum.request({
+                                method: 'eth_sendTransaction',
+                                params: [transactionParameters],
+                            }).catch((err) => {
+                                return err
+                            
+                            // check if error code returned
+                            }).then((data) => {
+                                if (data.code) {
+                                    this.setState(() => {
+                                        return {
+                                        // set transaction confirmed to false
+                                        transactionConfirmed: false
+                                        }
+                                    })
+                                // set state to transaction data
+                                } else {
+                                    this.setState(() => {
+                                        const transactionTimeUnix = Date.now()
+                                        return {
+                                            isMetaMaskInstalled: true,
+                                            transactionConfirmed: true,
+                                            supporterAccountAddress: window.ethereum.selectedAddress,
+                                            transactionHash: data,
+                                            transactionTime: transactionTimeUnix,
+                                            transactionSuccessOrErrorMessage: "Contacting the committer via GitHub... Please wait a few seconds..."
+                                        }
+                                    })
+                                }
+                            }).catch((err) => {
+                                return err
+                            })
+                        })
+                    }
                 }).then(() => {
-                    if (!this.state.transactionConfirmed) {
+                    if (this.state.transactionConfirmed === false) {
                         this.setState(() => {
                             return {
                                 // set transaction unsuccessful message
                                 transactionSuccessOrErrorMessage: "Transaction unsuccessful. No ether has been transferred from your wallet. Please check your wallet and try again."
                             }
                         })
-                    } else {
+                    } else if (this.state.transactionConfirmed === true){
                         // postOffer
                     const { commitData,
                         offerAmountInEth,
