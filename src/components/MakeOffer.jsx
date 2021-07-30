@@ -21,7 +21,7 @@ class MakeOffer extends Component {
         transactionHash: "",
         transactionTime: 0,
         commitCommentPosted: null,
-        transactionSuccessOrErrorMessage: "",
+        transactionSuccessOrErrorMessage: null,
     }
 
     componentDidUpdate() {
