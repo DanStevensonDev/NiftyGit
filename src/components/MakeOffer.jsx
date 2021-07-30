@@ -36,13 +36,13 @@ class MakeOffer extends Component {
         }
     }
 
-    handleMakeOffer = (event) => {
+    handleMakeOffer = async (event) => {
         // prevent default form submission before validation
         event.preventDefault()
         
         const {offerAmountInEth, commitUrl} = this.state
 
-        const formValidationResponse = validateFormValues(offerAmountInEth, commitUrl)
+        const formValidationResponse = await validateFormValues(offerAmountInEth, commitUrl)
         this.setState(() => {
             return {
                 transactionSuccessOrErrorMessage: formValidationResponse
