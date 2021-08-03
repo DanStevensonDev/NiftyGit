@@ -16,7 +16,6 @@ class MakeOffer extends Component {
         commitData: null,
         isMetaMaskInstalled: null,
         transactionConfirmed: null,
-        supporterEmailAddress: "",
         supporterAccountAddress: "",
         transactionHash: "",
         transactionTime: 0,
@@ -140,22 +139,18 @@ class MakeOffer extends Component {
                     const { commitData,
                         offerAmountInEth,
                         supporterAccountAddress,
-                        supporterEmailAddress,
                         transactionHash,
                         transactionTime
                     } = this.state
     
                     const committerUsername = commitData.committer.login
-    
-                    const commitDataUrl = `https://api.github.com/repos/${owner}/${repo}/commits/${ref}`
                     
                     const transactionData = {
                         offerStatus: "Awaiting response from committer",
-                        commitDataUrl,
+                        commitData,
                         committerUsername,
                         offerAmountInEth,
                         supporterAccountAddress,
-                        supporterEmailAddress,
                         transactionHash,
                         transactionTime
                     }
