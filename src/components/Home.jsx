@@ -1,26 +1,9 @@
 import React, { Component } from 'react';
 
-import Analytics from 'analytics'
-import googleAnalytics from '@analytics/google-analytics'
-
 import HeaderIntro from './HeaderIntro'
 import MetaMaskAccountInfo from './MetaMaskAccountInfo'
 import HowItWorksInfo from './HowItWorksInfo'
 import Footer from './Footer'
-
-
-const analytics = Analytics({
-  app: 'NiftyGit',
-  plugins: [
-    googleAnalytics({
-      trackingId: 'G-TJ44GFP810'
-    })
-  ]
-})
-
-/* Track a page view */
-analytics.page()
-
 class Home extends Component {
     render() {
         return (
