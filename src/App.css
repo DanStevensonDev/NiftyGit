@@ -67,3 +67,29 @@ footer p {
   margin: 0 2% 0 5%;
   display: inline-block;
 }
+
+#commit-offers {
+  font-family: Arial, Helvetica, sans-serif;
+  border-collapse: collapse;
+  background: white;
+  color: black;
+  width: 75%;
+}
+
+#commit-offers a {
+  color: black;
+}
+
+#commit-offers td, #commit-offers th {
+  padding: 8px;
+}
+
+#commit-offers tr:nth-child(even){background-color: #f1f0f0;}
+
+#commit-offers th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: left;
+  background-color: #111d3c;
+  color: white;
+}
