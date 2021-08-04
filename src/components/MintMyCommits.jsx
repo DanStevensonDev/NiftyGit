@@ -9,7 +9,7 @@ class MintMyCommits extends Component {
     state = {
         isGithubAuthenticated: false,
         committerData: {},
-        offersData: [],
+        offersData: null,
         committerAccount: "",
     }
 
@@ -35,17 +35,22 @@ class MintMyCommits extends Component {
     }
 
     render() {
-        if (!this.state.isGithubAuthenticated) {
+        const { isGithubAuthenticated, offersData } = this.state
+
+        if (!isGithubAuthenticated) {
             return (
                 <div>
                     <Button variant="contained" onClick={() => this.handleGithubLogin()}>Login to Github</Button>
                 </div>
                 
             )
+        } else if (!offersData) {
+            return (
+                <p>Loading offers data... Please wait... </p>
+            )
         } else {
             const committerUsername = this.state.committerData.additionalUserInfo.username
             const committerEmailAddress = this.state.committerData.user.email
-            const { offersData } = this.state
 
             return (
                 <div>
