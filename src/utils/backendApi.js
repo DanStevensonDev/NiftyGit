@@ -21,3 +21,10 @@ export const postOffer = (offerData) => {
             return data
         })
 }
+
+export const acceptOffer = (offerId) => {
+    return backendApi.patch(`/api/offers?offerId=${offerId}`, {offerStatus: 'Offer accepted. Awaiting commit minting and transfer of offer amount to committerOffer accepted - awaiting commit minting and transfer of offer funds to the committer.'})
+        .then((data) => {
+            return data
+    })
+}

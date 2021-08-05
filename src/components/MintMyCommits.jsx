@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import socialMediaAuth from '../service/auth';
 
-import { getOffersByCommitter } from '../utils/backendApi'
+import { getOffersByCommitter, acceptOffer } from '../utils/backendApi'
 
 import { Button } from "@material-ui/core"
 class MintMyCommits extends Component {
@@ -23,6 +23,20 @@ class MintMyCommits extends Component {
                 }
             })
             }).then(() => {
+                const committerUsername = this.state.committerData.additionalUserInfo.username
+                return getOffersByCommitter(committerUsername)
+            }).then(({data}) => {
+                this.setState(() => {
+                    return {
+                        offersData: data
+                    }
+                })
+            })
+    }
+
+    handleAcceptOffer = (offerId) => {
+        acceptOffer(offerId)
+            .then(() => {
                 const committerUsername = this.state.committerData.additionalUserInfo.username
                 return getOffersByCommitter(committerUsername)
             }).then(({data}) => {
@@ -63,23 +77,33 @@ class MintMyCommits extends Component {
                             <th>Repo</th>
                             <th>Commit</th>
                             <th>Offer amount</th>
-                            <th>Mint commit</th>
+                            <th></th>
                             </tr>
                         </thead>
                         <tbody>
                             {offersData.map((offer) => {
-                                console.log(offer)
-                                const { offerId, supporterAccountAddress, offerAmountInEth, commitData } = offer
+                                const { offerId, supporterAccountAddress, offerAmountInEth, commitData, offerStatus } = offer
                                 const repo = commitData.html_url.split("https://github.com/")[1].split("/commit")[0]
                                 const commitSHA = commitData.sha
-                                return (
-                                    <tr key={offerId}>
-                                        <td>{repo}</td>
-                                        <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                        <td>{offerAmountInEth} eth</td>
-                                        <td><Button variant="contained" onClick={() => this.handleMintCommit(commitSHA, supporterAccountAddress, offerAmountInEth)}>Accept offer and mint</Button></td>
-                                    </tr>
-                                )
+                                if (offerStatus === "Awaiting response from committer") {
+                                    return (
+                                        <tr key={offerId}>
+                                            <td>{repo}</td>
+                                            <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
+                                            <td>{offerAmountInEth} eth</td>
+                                            <td><Button variant="contained" onClick={() => this.handleAcceptOffer(offerId)}>Accept offer and mint</Button></td>
+                                        </tr>
+                                    )
+                                } else {
+                                    return (
+                                        <tr key={offerId}>
+                                            <td>{repo}</td>
+                                            <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
+                                            <td>{offerAmountInEth} eth</td>
+                                            <td>{ offerStatus }</td>
+                                        </tr>
+                                    )
+                                }
                         })}
                         </tbody>
                     </table>
