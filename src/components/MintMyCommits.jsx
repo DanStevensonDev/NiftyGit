@@ -25,7 +25,7 @@ class MintMyCommits extends Component {
             }).then(() => {
                 const committerUsername = this.state.committerData.additionalUserInfo.username
                 return getOffersByCommitter(committerUsername)
-            }).then(({data}) => {
+            }).then((data) => {
                 this.setState(() => {
                     return {
                         offersData: data
@@ -39,7 +39,7 @@ class MintMyCommits extends Component {
             .then(() => {
                 const committerUsername = this.state.committerData.additionalUserInfo.username
                 return getOffersByCommitter(committerUsername)
-            }).then(({data}) => {
+            }).then((data) => {
                 this.setState(() => {
                     return {
                         offersData: data
