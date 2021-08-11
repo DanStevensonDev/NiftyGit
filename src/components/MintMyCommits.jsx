@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 
 import socialMediaAuth from '../service/auth';
 
-import { getOffersByCommitter, acceptOffer } from '../utils/backendApi'
+import { getOffersByCommitter, getOffersByCommitterAndStatus, acceptOffer } from '../utils/backendApi'
 
 import { Button } from "@material-ui/core"
 class MintMyCommits extends Component {
@@ -13,25 +13,39 @@ class MintMyCommits extends Component {
         committerAccount: "",
     }
 
-    handleGithubLogin = () => {
-        socialMediaAuth()
-            .then((userData) => {
+    handleGithubLogin = async () => {
+        try {
+            const userData = await socialMediaAuth()
             this.setState(() => {
                 return {
                     isGithubAuthenticated: true,
                     committerData: userData
                 }
             })
-            }).then(() => {
+            
+            // fetch open offers
+            try {
                 const committerUsername = this.state.committerData.additionalUserInfo.username
-                return getOffersByCommitter(committerUsername)
-            }).then((data) => {
+                
+                const openOffers = await getOffersByCommitter(committerUsername)
+                
                 this.setState(() => {
                     return {
-                        offersData: data
+                        offersData: openOffers
                     }
                 })
-            })
+            }
+        
+            // catch error fetching open offers
+            catch (err){
+                console.log(err)
+            }
+        }
+
+        // catch GitHub login error
+        catch (err) {
+            console.log(err)
+        }            
     }
 
     handleAcceptOffer = (offerId) => {
@@ -76,7 +90,7 @@ class MintMyCommits extends Component {
                           <tr>
                             <th>Repo</th>
                             <th>Commit</th>
-                            <th>Offer amount</th>
+                            <th>Offer</th>
                             <th></th>
                             </tr>
                         </thead>
@@ -85,22 +99,53 @@ class MintMyCommits extends Component {
                                 const { offerId, supporterAccountAddress, offerAmountInEth, commitData, offerStatus } = offer
                                 const repo = commitData.html_url.split("https://github.com/")[1].split("/commit")[0]
                                 const commitSHA = commitData.sha
-                                if (offerStatus === "Awaiting response from committer") {
+                                if (offerStatus === 1) {
                                     return (
                                         <tr key={offerId}>
                                             <td>{repo}</td>
                                             <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                            <td>{offerAmountInEth} eth</td>
+                                            <td>{offerAmountInEth}ETH</td>
                                             <td><Button variant="contained" onClick={() => this.handleAcceptOffer(offerId)}>Accept offer and mint</Button></td>
                                         </tr>
                                     )
                                 } else {
+                                    let committersOfferStatus
+
+                                    switch (offerStatus) {
+                                        case 2:
+                                            committersOfferStatus = "Offer exceeded"
+                                            break;
+                                        case 3:
+                                            committersOfferStatus = "Offer exceeded"
+                                            break;
+                                        case 4:
+                                            committersOfferStatus = "Offer expired"
+                                            break;
+                                        case 5:
+                                            committersOfferStatus = "Offer expired"
+                                            break;
+                                        case 6:
+                                            committersOfferStatus = "You rejected the offer"
+                                            break;
+                                        case 7:
+                                            committersOfferStatus = "You rejected the offer"
+                                            break;
+                                        case 8:
+                                            committersOfferStatus = "Offer accepted - awaiting commit minting and transfer of offer funds."
+                                            break;
+                                        case 9:
+                                            committersOfferStatus = "Commit minted - offer amount transferred to your account and NFT transferred to supporter"
+                                            break;
+                                        default:
+                                            committersOfferStatus = "Offer expired"
+                                    }
+
                                     return (
                                         <tr key={offerId}>
                                             <td>{repo}</td>
                                             <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                            <td>{offerAmountInEth} eth</td>
-                                            <td>{ offerStatus }</td>
+                                            <td>{offerAmountInEth}ETH</td>
+                                            <td>{ committersOfferStatus }</td>
                                         </tr>
                                     )
                                 }
