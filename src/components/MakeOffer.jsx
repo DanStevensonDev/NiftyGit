@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {validateFormValues} from '../utils/validateFormValues'
 import { postCommitComment } from '../utils/api'
 import { getCommit } from '../utils/getCommit'
-import { postOffer } from '../utils/backendApi'
+import { getOffersByCommitSha, postOffer, updateExceededOffer } from '../utils/backendApi'
 
 import { TextField, Button } from "@material-ui/core"
 
@@ -20,27 +20,16 @@ class MakeOffer extends Component {
         transactionHash: "",
         transactionTime: 0,
         commitCommentPosted: null,
-        transactionSuccessOrErrorMessage: null,
-    }
-
-    componentDidUpdate() {
-        if (this.state.commitCommentPosted === true) {
-            this.setState(() => {
-                return {
-                    // reset commitCommentPosted to avoid re-calling setState
-                    commitCommentPosted: null,
-                    transactionSuccessOrErrorMessage: "Transaction successful! The committer has been notified with a comment on GitHub."
-                }
-            })
-        }
+        transactionSuccessOrErrorMessage: "",
     }
 
     handleMakeOffer = async (event) => {
         // prevent default form submission before validation
         event.preventDefault()
         
-        const {offerAmountInEth, commitUrl} = this.state
+        const {offerAmountInEth, commitUrl, transactionSuccessOrErrorMessage, commitData} = this.state
 
+        // 1 - validate form data
         const formValidationResponse = await validateFormValues(offerAmountInEth, commitUrl)
         this.setState(() => {
             return {
@@ -48,7 +37,17 @@ class MakeOffer extends Component {
             }
         })
         
-        if (this.state.transactionSuccessOrErrorMessage === "") {
+
+        // 2 - if no validation error, get commit data
+        if (transactionSuccessOrErrorMessage === "") {
+
+            // set loading message
+            this.setState(() => {
+                return {
+                    transactionSuccessOrErrorMessage: "Getting commit data..."
+                }
+            })
+
             const commitUrlDirectories = commitUrl.split("/").reverse()
     
             const owner = commitUrlDirectories[3]
@@ -56,27 +55,68 @@ class MakeOffer extends Component {
             const ref = commitUrlDirectories[0]
 
             // get commit data from GitHub
-            return getCommit(owner, repo, ref)
-                .then((commitData) => {
-                    this.setState({ commitData })
-                }).catch((err) => {
-                    return err 
-                }).then(() => {
-                    if (!this.state.commitData) {
+            try {
+                const commitData = await getCommit(owner, repo, ref)
+                
+                this.setState(() => {
+                    return {
+                        commitData: commitData,
+                    }
+                })
+
+                // 3 - if no getCommit error, get offer data
+                try {
+                    const commitSha = this.state.commitData.sha
+                    const offersData = await getOffersByCommitSha(commitSha)
+                    
+                    // check if open offer or previously accepted offer exists
+                    let openOffer = null
+                    let previousOfferAccepted = null
+
+                    if (offersData.length > 0) {
+                        for (let i = 0; i < offersData.length; i++) {
+                            if (offersData[i].offerStatus === 8 || offersData[i].offerStatus === 9) {
+                                previousOfferAccepted = true
+                            }
+
+                            if (offersData[i].offerStatus === 1) {
+                                openOffer = offersData[i]
+                            }
+                        }
+                    }
+
+                    // set error message if offer already accepted or higher offer
+                    if (previousOfferAccepted) {
                         this.setState(() => {
                             return {
-                                // set transaction unsuccessful message
-                                transactionSuccessOrErrorMessage: "Could not get commit data. Please check that it is a public commit (i.e. it should be visible if visiting the link in incognito mode)."
+                                transactionSuccessOrErrorMessage: "An offer has already been accepted for this commit and it is no longer available. Try making an offer on a different commit."
+                            }
+                        })
+                    } else if (openOffer && (openOffer.offerAmountInEth >= this.state.offerAmountInEth)) {
+                        this.setState(() => {
+                            return {
+                                transactionSuccessOrErrorMessage: `There is an open offer of ${openOffer.offerAmountInEth} ETH for this commit. Enter an amount larger than ${openOffer.offerAmountInEth} ETH to make an offer.`
                             }
                         })
                     } else {
-                        // calculate offer in Hex needed for web3 request function
+
+                        // 3a - if open offer (which is now exceeded) patch the previous open offer to indicate a larger offer has been made
+                        if (openOffer) {
+                            try {
+                                await updateExceededOffer(openOffer.offerId)
+                            }
+    
+                            // catch patch previous offer error
+                            catch (err){
+                                console.log(err)
+                            }
+                        }
+
                         const offerInEth = this.state.offerAmountInEth
                         const offerInGwei = offerInEth * 1000000000
                         const offerInWei = offerInGwei * 1000000000
                         const offerInWeiHex = offerInWei.toString(16)
         
-                        // create request to escrow account
                         this.setState(() => {
                             return {
                                 // set wallet instructions message
@@ -84,98 +124,117 @@ class MakeOffer extends Component {
                             }
                         })
         
-                        return window.ethereum.request({ method: 'eth_requestAccounts' })
-                            .then(() => {
-                            const transactionParameters = {
-                                from: window.ethereum.selectedAddress,
-                                to: REACT_APP_ETHER_ESCROW_ADDRESS,
-                                value: offerInWeiHex,
-                            }
-                                
-                            return window.ethereum.request({
+                        const transactionParameters = {
+                            from: window.ethereum.selectedAddress,
+                            to: REACT_APP_ETHER_ESCROW_ADDRESS,
+                            value: offerInWeiHex,
+                        }
+                           
+                        // 4 - create escrow transfer transaction
+                        try {
+                            const transactionHash = await window.ethereum.request({
                                 method: 'eth_sendTransaction',
                                 params: [transactionParameters],
-                            }).catch((err) => {
-                                return err
-                            
-                            // check if error code returned
-                            }).then((data) => {
-                                if (data.code) {
+                            })
+
+                            this.setState(() => {
+                                return {
+                                    supporterAccountAddress: window.ethereum.selectedAddress,
+                                    transactionHash: transactionHash,
+                                    transactionTime: Date.now(),
+                                    transactionSuccessOrErrorMessage: "Contacting the committer via GitHub... Please wait a few seconds..."
+                                }
+                            })
+
+                            // 5 - post commit data and transaction data to DB
+                            try {
+                                const { commitData,
+                                    offerAmountInEth,
+                                    supporterAccountAddress,
+                                    transactionHash,
+                                    transactionTime
+                                } = this.state
+    
+                                const committerUsername = commitData.committer.login
+                                const commitSha = commitData.sha
+                    
+                                const transactionData = {
+                                    committerUsername,
+                                    commitSha,
+                                    offerStatus: 1,
+                                    commitData,
+                                    offerAmountInEth,
+                                    transactionTime,
+                                    transactionHash,
+                                    supporterAccountAddress,
+                                }
+    
+                                await postOffer(transactionData)
+
+                                // 6 - post offer comment to GitHub
+                                try {
+                                    await postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth, transactionHash)
                                     this.setState(() => {
                                         return {
-                                        // set transaction confirmed to false
-                                        transactionConfirmed: false
-                                        }
-                                    })
-                                // set state to transaction data
-                                } else {
-                                    this.setState(() => {
-                                        const transactionTimeUnix = Date.now()
-                                        return {
-                                            isMetaMaskInstalled: true,
-                                            transactionConfirmed: true,
-                                            supporterAccountAddress: window.ethereum.selectedAddress,
-                                            transactionHash: data,
-                                            transactionTime: transactionTimeUnix,
-                                            transactionSuccessOrErrorMessage: "Contacting the committer via GitHub... Please wait a few seconds..."
+                                            transactionSuccessOrErrorMessage: "Transaction successful! The committer has been notified with a comment on GitHub."
                                         }
                                     })
                                 }
-                            }).catch((err) => {
-                                return err
-                            })
-                        })
-                    }
-                }).then(() => {
-                    if (this.state.transactionConfirmed === false) {
-                        this.setState(() => {
-                            return {
-                                // set transaction unsuccessful message
-                                transactionSuccessOrErrorMessage: "Transaction unsuccessful. No ether has been transferred from your wallet. Please check your wallet and try again."
-                            }
-                        })
-                    } else if (this.state.transactionConfirmed === true){
-                        // postOffer
-                    const { commitData,
-                        offerAmountInEth,
-                        supporterAccountAddress,
-                        transactionHash,
-                        transactionTime
-                    } = this.state
-    
-                    const committerUsername = commitData.committer.login
-                    
-                    const transactionData = {
-                        offerStatus: "Awaiting response from committer",
-                        commitData,
-                        committerUsername,
-                        offerAmountInEth,
-                        supporterAccountAddress,
-                        transactionHash,
-                        transactionTime
-                    }
-    
-                    return postOffer(transactionData).then((data) => {
-                        // console.log(data)
-                    }).catch((err) => {
-                        return err
-                    }).then(() => {
-                        // if transaction confirmed, post comment to GitHub @committerUsername
-                        if (this.state.transactionConfirmed) {
-                            return postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth, transactionHash)
-                                .then(() => {
+
+                                // catch error posting comment to GitHub
+                                catch (err){
+                                    console.log(err)
                                     this.setState(() => {
+                                        return {
+                                            transactionSuccessOrErrorMessage: "Transaction successful! The committer will be notified by email."
+                                        }
+                                    })
+                                }
+                            }
+
+                            // catch post commit data and transaction data to DB error
+                            catch (err){
+                                console.log(err)
+                                this.setState(() => {
                                     return {
-                                        commitCommentPosted: true,
+                                        transactionSuccessOrErrorMessage: "Error posting your offer to our database. Please get in touch with NiftyGit on Twitter."
                                     }
                                 })
+                            }
+                        }
+
+                        // catch escrow transfer transaction error
+                        catch (err){
+                            console.log(err)
+                            this.setState(() => {
+                                return {
+                                    transactionSuccessOrErrorMessage: "Transaction unsuccessful. No ether has been transferred from your wallet. Please check your wallet and try again."
+                                }
                             })
                         }
-                    }).catch((err) => {
-                        return err
+                    }
+
+                }
+                // handle getOffer error
+                catch (err) {
+                    console.log(err)
+                    this.setState(() => {
+                        return {
+                            transactionSuccessOrErrorMessage: "Connection error. Please try again."
+                        }
                     })
                 }
-            })
+            }
+            
+            // handle getCommit error
+            catch (err) {
+                console.log(err)
+                this.setState(() => {
+                    return {
+                        transactionSuccessOrErrorMessage: "Error getting commit data from GitHub. Check that the commit is public and try again."
+                    }
+                })
+            }
         }
     }
 
@@ -184,7 +243,8 @@ class MakeOffer extends Component {
         const value = event.target.value
         this.setState(() => {
             return {
-                [key]: value
+                [key]: value,
+                transactionSuccessOrErrorMessage: "",
             }
         })
     }
