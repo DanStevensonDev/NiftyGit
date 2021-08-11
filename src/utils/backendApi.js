@@ -9,7 +9,20 @@ const backendApi = axios.create({
 export const getOffersByCommitter = (committerUsername) => {
     return backendApi.get(`/api/offers?committer=${committerUsername}`)
         .then(({ data }) => {
-            console.log(data)
+            return data
+    })
+}
+
+export const getOffersByCommitSha = (commitSha) => {
+    return backendApi.get(`/api/offers?commitSha=${commitSha}`)
+        .then(({ data }) => {
+            return data
+    })
+}
+
+export const getOffersByCommitterAndStatus = (committerUsername, offerStatus) => {
+    return backendApi.get(`/api/offers?committer=${committerUsername}&offerStatus=${offerStatus}`)
+        .then(({ data }) => {
             return data
     })
 }
@@ -23,8 +36,15 @@ export const postOffer = (offerData) => {
 }
 
 export const acceptOffer = (offerId) => {
-    return backendApi.patch(`/api/offers?offerId=${offerId}`, {offerStatus: 'Offer accepted - awaiting commit minting and transfer of offer funds.'})
+    return backendApi.patch(`/api/offers?offerId=${offerId}`, {offerStatus: 8})
         .then((data) => {
             return data
     })
+}
+
+export const updateExceededOffer = (offerId) => {
+    return backendApi.patch(`/api/offers?offerId=${offerId}`, { offerStatus: 2 })
+        .then(({ data }) => {
+            return data
+        })
 }
