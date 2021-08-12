@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import {validateFormValues} from '../utils/validateFormValues'
 import { postCommitComment } from '../utils/api'
 import { getCommit } from '../utils/getCommit'
-import { getOffersByCommitSha, postOffer, updateExceededOffer } from '../utils/backendApi'
+import { getOffersByCommitSha, postOffer, updateOfferStatus } from '../utils/backendApi'
 
 import { TextField, Button } from "@material-ui/core"
 
@@ -21,6 +21,7 @@ class MakeOffer extends Component {
         transactionTime: 0,
         commitCommentPosted: null,
         transactionSuccessOrErrorMessage: "",
+        offerId: null,
     }
 
     handleMakeOffer = async (event) => {
@@ -75,11 +76,11 @@ class MakeOffer extends Component {
 
                     if (offersData.length > 0) {
                         for (let i = 0; i < offersData.length; i++) {
-                            if (offersData[i].offerStatus === 8 || offersData[i].offerStatus === 9) {
+                            if (offersData[i].offerStatus === 9 || offersData[i].offerStatus === 10) {
                                 previousOfferAccepted = true
                             }
 
-                            if (offersData[i].offerStatus === 1) {
+                            if (offersData[i].offerStatus === 1 || offersData[i].offerStatus === 2) {
                                 openOffer = offersData[i]
                             }
                         }
@@ -103,7 +104,7 @@ class MakeOffer extends Component {
                         // 3a - if open offer (which is now exceeded) patch the previous open offer to indicate a larger offer has been made
                         if (openOffer) {
                             try {
-                                await updateExceededOffer(openOffer.offerId)
+                                await updateOfferStatus(openOffer.offerId, 3)
                             }
     
                             // catch patch previous offer error
@@ -161,7 +162,7 @@ class MakeOffer extends Component {
                                 const transactionData = {
                                     committerUsername,
                                     commitSha,
-                                    offerStatus: 1,
+                                    offerStatus: 2,
                                     commitData,
                                     offerAmountInEth,
                                     transactionTime,
@@ -169,11 +170,19 @@ class MakeOffer extends Component {
                                     supporterAccountAddress,
                                 }
     
-                                await postOffer(transactionData)
+                                const offerDataInDatabase = await postOffer(transactionData)
+                                console.log(offerDataInDatabase)
+
+                                this.setState(() => {
+                                    return {
+                                        offerId: offerDataInDatabase.offerId
+                                    }
+                                })
 
                                 // 6 - post offer comment to GitHub
                                 try {
                                     await postCommitComment(owner, repo, ref, committerUsername, offerAmountInEth, transactionHash)
+
                                     this.setState(() => {
                                         return {
                                             transactionSuccessOrErrorMessage: "Transaction successful! The committer has been notified with a comment on GitHub."
@@ -181,7 +190,7 @@ class MakeOffer extends Component {
                                     })
                                 }
 
-                                // catch error posting comment to GitHub
+                                // catch error posting comment to GitHub; leave offerStatus as is and contact committer by email address in commit data
                                 catch (err){
                                     console.log(err)
                                     this.setState(() => {
@@ -189,10 +198,21 @@ class MakeOffer extends Component {
                                             transactionSuccessOrErrorMessage: "Transaction successful! The committer will be notified by email."
                                         }
                                     })
+
+                                    // 6a - if comment not posted, updateOfferStatus to indicate need to contact by email
+                                    try {
+                                        console.log(this.state)
+                                        await updateOfferStatus(this.state.offerId, 1)
+                                    }
+            
+                                    // catch updateOfferStatus error
+                                    catch (err) {
+                                        console.log(err)
+                                    }
                                 }
                             }
 
-                            // catch post commit data and transaction data to DB error
+                            // ERROR - catch post commit data and transaction data to DB error
                             catch (err){
                                 console.log(err)
                                 this.setState(() => {
