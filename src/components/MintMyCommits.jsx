@@ -1,17 +1,32 @@
 import React, { Component } from 'react'
 
+import axios from 'axios'
+
 import socialMediaAuth from '../service/auth';
 
 import { getOffersByCommitter, getOffersByCommitterAndStatus, acceptOffer } from '../utils/backendApi'
 
 import { Button } from "@material-ui/core"
+
+const { REACT_APP_ETHERSCAN_API_KEY } = process.env
 class MintMyCommits extends Component {
     state = {
         isGithubAuthenticated: false,
         committerData: {},
         offersData: null,
         committerAccount: "",
+        ethUsdPrice: null,
     }
+
+    async componentDidMount() {
+        const ethPriceData = await axios.get(`https://api.etherscan.io/api?module=stats&action=ethprice&apikey=${REACT_APP_ETHERSCAN_API_KEY}`)
+
+        this.setState(() => {
+            return {
+                ethUsdPrice: ethPriceData.data.result.ethusd
+            }
+        })
+    } 
 
     handleGithubLogin = async () => {
         try {
@@ -90,21 +105,23 @@ class MintMyCommits extends Component {
                           <tr>
                             <th>Repo</th>
                             <th>Commit</th>
-                            <th>Offer</th>
+                            <th>Offer amount</th>
                             <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            {offersData.map((offer) => {
+                            {offersData.reverse().map((offer) => {
+                                const { ethUsdPrice } = this.state
                                 const { offerId, supporterAccountAddress, offerAmountInEth, commitData, offerStatus } = offer
+                                const offerAmountInUsd = offerAmountInEth * ethUsdPrice
                                 const repo = commitData.html_url.split("https://github.com/")[1].split("/commit")[0]
                                 const commitSHA = commitData.sha
-                                if (offerStatus === 1) {
+                                if (offerStatus === 1 || offerStatus === 2) {
                                     return (
                                         <tr key={offerId}>
                                             <td>{repo}</td>
                                             <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                            <td>{offerAmountInEth}ETH</td>
+                                            <td>{offerAmountInEth}ETH<br/>(approx. ${offerAmountInUsd.toFixed(2)})</td>
                                             <td><Button variant="contained" onClick={() => this.handleAcceptOffer(offerId)}>Accept offer and mint</Button></td>
                                         </tr>
                                     )
@@ -144,7 +161,7 @@ class MintMyCommits extends Component {
                                         <tr key={offerId}>
                                             <td>{repo}</td>
                                             <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                            <td>{offerAmountInEth}ETH</td>
+                                            <td>{offerAmountInEth}ETH<br/>(approx. ${offerAmountInUsd.toFixed(2)})</td>
                                             <td>{ committersOfferStatus }</td>
                                         </tr>
                                     )
