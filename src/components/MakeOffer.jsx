@@ -171,7 +171,6 @@ class MakeOffer extends Component {
                                 }
     
                                 const offerDataInDatabase = await postOffer(transactionData)
-                                console.log(offerDataInDatabase)
 
                                 this.setState(() => {
                                     return {
@@ -190,7 +189,7 @@ class MakeOffer extends Component {
                                     })
                                 }
 
-                                // catch error posting comment to GitHub; leave offerStatus as is and contact committer by email address in commit data
+                                // catch error posting comment to GitHub
                                 catch (err){
                                     console.log(err)
                                     this.setState(() => {
