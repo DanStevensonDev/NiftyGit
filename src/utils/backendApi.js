@@ -30,8 +30,8 @@ export const getOffersByCommitterAndStatus = (committerUsername, offerStatus) =>
 export const postOffer = (offerData) => {
     // console.log(offerData)
     return backendApi.post(`api/offers`, offerData)
-        .then((data) => {
-            return data
+        .then(({data}) => {
+            return data[0]
         })
 }
 
@@ -42,8 +42,8 @@ export const acceptOffer = (offerId) => {
     })
 }
 
-export const updateExceededOffer = (offerId) => {
-    return backendApi.patch(`/api/offers?offerId=${offerId}`, { offerStatus: 2 })
+export const updateOfferStatus = (offerId, offerStatus) => {
+    return backendApi.patch(`/api/offers?offerId=${offerId}`, { offerStatus: offerStatus })
         .then(({ data }) => {
             return data
         })
