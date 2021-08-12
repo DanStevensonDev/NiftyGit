@@ -19,8 +19,6 @@ export const postCommitComment = (owner, repo, ref, committerUsername, offerAmou
     }
 
     return commitApi.post(apiPath, commentBody).then(({data}) => {
-        // console.log(data)
-    }).catch((err) => {
-        return err
+        return data
     })
 }
