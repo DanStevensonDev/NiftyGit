@@ -1,175 +1,58 @@
 import React, { Component } from 'react'
 
-import axios from 'axios'
+import CommitterEthAddressInfo from './CommitterEthAddressInfo'
 
 import socialMediaAuth from '../service/auth';
 
-import { getOffersByCommitter, getOffersByCommitterAndStatus, acceptOffer } from '../utils/backendApi'
-
 import { Button } from "@material-ui/core"
-
-const { REACT_APP_ETHERSCAN_API_KEY } = process.env
 class MintMyCommits extends Component {
     state = {
         isGithubAuthenticated: false,
         committerData: {},
-        offersData: null,
-        committerAccount: "",
-        ethUsdPrice: null,
     }
 
-    async componentDidMount() {
-        const ethPriceData = await axios.get(`https://api.etherscan.io/api?module=stats&action=ethprice&apikey=${REACT_APP_ETHERSCAN_API_KEY}`)
-
-        this.setState(() => {
-            return {
-                ethUsdPrice: ethPriceData.data.result.ethusd
-            }
-        })
-    } 
-
     handleGithubLogin = async () => {
+        this.setState({ isGithubAuthenticated: null })
+        
         try {
             const userData = await socialMediaAuth()
-            this.setState(() => {
-                return {
-                    isGithubAuthenticated: true,
-                    committerData: userData
-                }
-            })
-            
-            // fetch open offers
-            try {
-                const committerUsername = this.state.committerData.additionalUserInfo.username
-                
-                const openOffers = await getOffersByCommitter(committerUsername)
-                
+            if (userData) {
                 this.setState(() => {
                     return {
-                        offersData: openOffers
+                        isGithubAuthenticated: true,
+                        committerData: userData
                     }
                 })
-            }
-        
-            // catch error fetching open offers
-            catch (err){
-                console.log(err)
             }
         }
 
         // catch GitHub login error
         catch (err) {
-            console.log(err)
+            console.warn(err)
+            this.setState({ isGithubAuthenticated: false })
         }            
     }
 
-    handleAcceptOffer = (offerId) => {
-        acceptOffer(offerId)
-            .then(() => {
-                const committerUsername = this.state.committerData.additionalUserInfo.username
-                return getOffersByCommitter(committerUsername)
-            }).then((data) => {
-                this.setState(() => {
-                    return {
-                        offersData: data
-                    }
-                })
-            })
-    }
-
     render() {
-        const { isGithubAuthenticated, offersData } = this.state
+        const { isGithubAuthenticated } = this.state
 
-        if (!isGithubAuthenticated) {
+        if (isGithubAuthenticated === false) {
             return (
                 <div>
                     <Button variant="contained" onClick={() => this.handleGithubLogin()}>Login to Github</Button>
                 </div>
                 
             )
-        } else if (!offersData) {
+        } else if (isGithubAuthenticated === null) {
             return (
-                <p>Loading offers data... Please wait... </p>
+                <p>Continue to sign in via GitHub popup window... </p>
             )
-        } else {
+        } else if (isGithubAuthenticated === true) {
             const committerUsername = this.state.committerData.additionalUserInfo.username
             const committerEmailAddress = this.state.committerData.user.email
 
             return (
-                <div>
-                    <p>Logged in</p>
-                    <p>Hi {committerUsername}</p>
-                    <p>Email address: {committerEmailAddress}</p>
-                    <table id="commit-offers">
-                        <thead>
-                          <tr>
-                            <th>Repo</th>
-                            <th>Commit</th>
-                            <th>Offer amount</th>
-                            <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {offersData.reverse().map((offer) => {
-                                const { ethUsdPrice } = this.state
-                                const { offerId, supporterAccountAddress, offerAmountInEth, commitData, offerStatus } = offer
-                                const offerAmountInUsd = offerAmountInEth * ethUsdPrice
-                                const repo = commitData.html_url.split("https://github.com/")[1].split("/commit")[0]
-                                const commitSHA = commitData.sha
-                                if (offerStatus === 1 || offerStatus === 2) {
-                                    return (
-                                        <tr key={offerId}>
-                                            <td>{repo}</td>
-                                            <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                            <td>{offerAmountInEth}ETH<br/>(approx. ${offerAmountInUsd.toFixed(2)})</td>
-                                            <td><Button variant="contained" onClick={() => this.handleAcceptOffer(offerId)}>Accept offer and mint</Button></td>
-                                        </tr>
-                                    )
-                                } else {
-                                    let committersOfferStatus
-
-                                    switch (offerStatus) {
-                                        case 2:
-                                            committersOfferStatus = "Offer exceeded"
-                                            break;
-                                        case 3:
-                                            committersOfferStatus = "Offer exceeded"
-                                            break;
-                                        case 4:
-                                            committersOfferStatus = "Offer expired"
-                                            break;
-                                        case 5:
-                                            committersOfferStatus = "Offer expired"
-                                            break;
-                                        case 6:
-                                            committersOfferStatus = "You rejected the offer"
-                                            break;
-                                        case 7:
-                                            committersOfferStatus = "You rejected the offer"
-                                            break;
-                                        case 8:
-                                            committersOfferStatus = "Offer accepted - awaiting commit minting and transfer of offer funds."
-                                            break;
-                                        case 9:
-                                            committersOfferStatus = "Commit minted - offer amount transferred to your account and NFT transferred to supporter"
-                                            break;
-                                        default:
-                                            committersOfferStatus = "Offer expired"
-                                    }
-
-                                    return (
-                                        <tr key={offerId}>
-                                            <td>{repo}</td>
-                                            <td><a href={commitData.html_url} target="_blank" rel="noreferrer">{commitData.commit.message}</a></td>
-                                            <td>{offerAmountInEth}ETH<br/>(approx. ${offerAmountInUsd.toFixed(2)})</td>
-                                            <td>{ committersOfferStatus }</td>
-                                        </tr>
-                                    )
-                                }
-                        })}
-                        </tbody>
-                    </table>
-                </div>
+                <CommitterEthAddressInfo committerUsername={committerUsername} committerEmailAddress={committerEmailAddress}/>
             )
         }
     }
