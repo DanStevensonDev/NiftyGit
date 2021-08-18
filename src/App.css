@@ -82,14 +82,18 @@ footer p {
 
 #commit-offers td, #commit-offers th {
   padding: 8px;
+  vertical-align: middle;
+  text-align: center;
 }
 
-#commit-offers tr:nth-child(even){background-color: #f1f0f0;}
+#commit-offers tr:nth-child(even){
+  background-color: #f1f0f0;
+}
 
 #commit-offers th {
   padding-top: 12px;
   padding-bottom: 12px;
-  text-align: left;
+  text-align: center;
   background-color: #111d3c;
   color: white;
 }
