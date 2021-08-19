@@ -1,9 +1,12 @@
 import axios from "axios"
 
-const { REACT_APP_BACKEND_API_BASE_URL } = process.env
+const { REACT_APP_BACKEND_API_BASE_URL, REACT_APP_HEADER_AUTH } = process.env
 
 const backendApi = axios.create({
-    baseURL: REACT_APP_BACKEND_API_BASE_URL
+    baseURL: REACT_APP_BACKEND_API_BASE_URL,
+    headers: {
+        'Authorization': REACT_APP_HEADER_AUTH
+    }
 })
 
 export const getOffersByCommitter = (committerUsername) => {
